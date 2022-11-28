@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -20,6 +19,7 @@ class _ExportScreenState extends State<ExportScreen> {
   late bool _permissionReady;
   late TargetPlatform? platform;
   final String fileName = "nRF_MeshNetwork.json";
+  bool switcher = true;
   @override
   void initState() {
     super.initState();
@@ -63,6 +63,7 @@ class _ExportScreenState extends State<ExportScreen> {
       );
     }
 
+    /// build body
     Widget buildBody() {
       return Column(
         children: [
@@ -75,10 +76,10 @@ class _ExportScreenState extends State<ExportScreen> {
           ListTile(
             title: const Text("Xuất tất cả dữ liệu"),
             trailing: Switch(
-              value: true,
+              value: switcher,
               onChanged: (value) {
                 setState(() {
-                  value;
+                  switcher = value;
                 });
                 debugPrint(value.toString());
               },
@@ -91,18 +92,18 @@ class _ExportScreenState extends State<ExportScreen> {
     /// build floating btn
     /// Xuất file json
     void floatingActionBtnOnTapped() async {
-      final stringJsonData = await widget.meshManagerApi.exportMeshNetwork();
+      // final stringJsonData = await widget.meshManagerApi.exportMeshNetwork();
       _permissionReady = await _checkPermission();
       if (_permissionReady) {
         final stringJsonData = await widget.meshManagerApi.exportMeshNetwork();
-        final filePath = await FilePicker.platform.getDirectoryPath();
-        File string = File('$filePath/$fileName');
-        // await string.create(recursive: true);
-        // Uint8List bytes = await string.readAsBytes();
-        // await string.writeAsBytes(bytes);
-        // string.writeAsString(stringJsonData!);
+        // final filePath = await FilePicker.platform.pickFiles();
+        // File string = File('$filePath/$fileName');
+        //   // await string.create(recursive: true);
+        //   // Uint8List bytes = await string.readAsBytes();
+        //   // await string.writeAsBytes(bytes);
+        //   // string.writeAsString(stringJsonData!);
         debugPrint(stringJsonData.toString());
-        debugPrint(string.toString());
+        // debugPrint(string.toString());
         debugPrint("Downloading");
         try {
           debugPrint("Download Completed.");

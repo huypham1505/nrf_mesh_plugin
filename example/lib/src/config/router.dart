@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
+
 import '../presentations/screen/home/main_screen.dart';
 import '../presentations/screen/splash/splash_screen.dart';
 

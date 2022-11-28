@@ -1,83 +1,83 @@
-// import 'package:json_annotation/json_annotation.dart';
-// part 'mesh.g.dart';
+import 'package:json_annotation/json_annotation.dart';
+part 'mesh.g.dart';
 
-// @JsonSerializable(explicitToJson: true)
-// class Header{
-//   String meshUUID;
-//   String meshName;
-//   String version;
-//   DateTime? timestamp;
+@JsonSerializable(explicitToJson: true)
+class Header {
+  String meshUUID;
+  String meshName;
+  String version;
+  DateTime? timestamp;
 
-//   Header({
-//     required this.meshUUID,
-//     required this.meshName,
-//     required this.version,
-//     required this.timestamp,
-//   });
+  Header({
+    required this.meshUUID,
+    required this.meshName,
+    required this.version,
+    required this.timestamp,
+  });
 
-//   factory Header.fromJson(Map<String, dynamic> json) => _$HeaderFromJson(json);
-//   Map<String, dynamic> toJson() => _$HeaderToJson(this);
-// }
+  factory Header.fromJson(Map<String, dynamic> json) => _$HeaderFromJson(json);
+  Map<String, dynamic> toJson() => _$HeaderToJson(this);
+}
 
-// @JsonSerializable(explicitToJson: true)
-// class NetKey{
-//   String name;
-//   int index;
-//   String key;
-//   int phase;
-//   bool minSecurity;
-//   int timestamp;
+@JsonSerializable(explicitToJson: true)
+class NetKey {
+  String name;
+  int index;
+  String key;
+  int phase;
+  bool minSecurity;
+  int timestamp;
 
-//   NetKey({
-//     required this.name,
-//     required this.index,
-//     required this.key,
-//     required this.phase,
-//     required this.minSecurity,
-//     required this.timestamp,
-//   });
+  NetKey({
+    required this.name,
+    required this.index,
+    required this.key,
+    required this.phase,
+    required this.minSecurity,
+    required this.timestamp,
+  });
 
-//   factory NetKey.fromJson(Map<String, dynamic> json) => _$NetKeyFromJson(json);
-//   Map<String, dynamic> toJson() => _$NetKeyToJson(this);
-// }
+  factory NetKey.fromJson(Map<String, dynamic> json) => _$NetKeyFromJson(json);
+  Map<String, dynamic> toJson() => _$NetKeyToJson(this);
+}
 
-// @JsonSerializable(explicitToJson: true)
-// class AppKey{
-//   String name;
-//   int index;
-//   int boundNetKey;
-//   String key;
+@JsonSerializable(explicitToJson: true)
+class AppKey {
+  String name;
+  int index;
+  int boundNetKey;
+  String key;
 
-//   AppKey({
-//     required this.name,
-//     required this.index,
-//     required this.boundNetKey,
-//     required this.key,
-//   });
+  AppKey({
+    required this.name,
+    required this.index,
+    required this.boundNetKey,
+    required this.key,
+  });
 
-//   factory AppKey.fromJson(Map<String, dynamic> json) => _$AppKeyFromJson(json);
-//   Map<String, dynamic> toJson() => _$AppKeyToJson(this);
-// }
+  factory AppKey.fromJson(Map<String, dynamic> json) => _$AppKeyFromJson(json);
+  Map<String, dynamic> toJson() => _$AppKeyToJson(this);
+}
 
-// @JsonSerializable(explicitToJson: true)
-// class Provisioner{
-//   String provisionerName;
-//   String uuid;
-//   Map allocatedUnicastRange;
-//   Map allocatedGroupRange;
-//   Map allocatedSceneRange;
+@JsonSerializable(explicitToJson: true)
+class Provisioner {
+  String provisionerName;
+  String uuid;
+  Map allocatedUnicastRange;
+  Map allocatedGroupRange;
+  Map allocatedSceneRange;
 
-//   Provisioner({
-//     required this.provisionerName,
-//     required this.uuid,
-//     required this.allocatedUnicastRange,
-//     required this.allocatedGroupRange,
-//     required this.allocatedSceneRange,
-//   });
+  Provisioner({
+    required this.provisionerName,
+    required this.uuid,
+    required this.allocatedUnicastRange,
+    required this.allocatedGroupRange,
+    required this.allocatedSceneRange,
+  });
 
-//   factory Provisioner.fromJson(Map<String, dynamic> json) => _$ProvisionerFromJson(json);
-//   Map<String, dynamic> toJson() => _$ProvisionerToJson(this);
-// }
+  factory Provisioner.fromJson(Map<String, dynamic> json) => _$ProvisionerFromJson(json);
+  Map<String, dynamic> toJson() => _$ProvisionerToJson(this);
+}
 
 // @JsonSerializable(explicitToJson: true)
 // class GatewayProperties{
@@ -139,78 +139,78 @@
 //   Map<String, dynamic> toJson() => _$BaseTCPToJson(this);
 // }
 
-// // gateway config for TCP
-// @JsonSerializable(explicitToJson: true)
-// class Node{
-//   String? name;
-//   int? context;
-//   int? netKeyIndex;
-//   int? appKeyIndex;
-//   String? advAddr;
-//   int? gattSupported;
-//   int? advAddrType;
-//   int? rssi;
-//   String? uuid;
-//   String? address;
-//   String? deviceKey;
-//   String? networkKey;
-//   String? appKey;
-//   int? numberOfElements;
-//   String? elementAddress;
-//   String? devKeyHandle;
-//   String? addressHandle;
-//   String? cid;
-//   String? pid;
-//   String? vid;
-//   String? crpl;
-//   bool?  relay;
-//   bool?  proxy;
-//   bool?  friends;
-//   bool?  lowPower;
-//   String?  loc;
-//   List<dynamic>?  models;
-//   List<dynamic>?  effects;
-//   List<dynamic>?  bindModels;
-//   Map<String, dynamic> public;
-//   Map<String, dynamic>? hubConfig;
+// gateway config for TCP
+@JsonSerializable(explicitToJson: true)
+class Node {
+  String? name;
+  int? context;
+  int? netKeyIndex;
+  int? appKeyIndex;
+  String? advAddr;
+  int? gattSupported;
+  int? advAddrType;
+  int? rssi;
+  String? uuid;
+  String? address;
+  String? deviceKey;
+  String? networkKey;
+  String? appKey;
+  int? numberOfElements;
+  String? elementAddress;
+  String? devKeyHandle;
+  String? addressHandle;
+  String? cid;
+  String? pid;
+  String? vid;
+  String? crpl;
+  bool? relay;
+  bool? proxy;
+  bool? friends;
+  bool? lowPower;
+  String? loc;
+  List<dynamic>? models;
+  List<dynamic>? effects;
+  List<dynamic>? bindModels;
+  Map<String, dynamic> public;
+  Map<String, dynamic>? hubConfig;
 
-//   Node({
-//     required this.name,
-//     required this.context,
-//     required this.netKeyIndex,
-//     required this.appKeyIndex,
-//     required this.advAddr,
-//     required this.advAddrType,
-//     required this.gattSupported,
-//     required this.rssi,
-//     required this.uuid,
-//     required this.address,
-//     required this.deviceKey,
-//     required this.networkKey,
-//     required this.appKey,
-//     required this.numberOfElements,
-//     required this.elementAddress,
-//     required this.devKeyHandle,
-//     required this.addressHandle,
-//     required this.cid,
-//     required this.pid,
-//     required this.vid,
-//     required this.crpl,
-//     required this.relay,
-//     required this.proxy,
-//     required this.friends,
-//     required this.lowPower,
-//     required this.loc,
-//     required this.models,
-//     required this.effects,
-//     required this.bindModels,
-//     required this.public,
-//     required this.hubConfig,
-//   });
+  Node({
+    required this.name,
+    required this.context,
+    required this.netKeyIndex,
+    required this.appKeyIndex,
+    required this.advAddr,
+    required this.advAddrType,
+    required this.gattSupported,
+    required this.rssi,
+    required this.uuid,
+    required this.address,
+    required this.deviceKey,
+    required this.networkKey,
+    required this.appKey,
+    required this.numberOfElements,
+    required this.elementAddress,
+    required this.devKeyHandle,
+    required this.addressHandle,
+    required this.cid,
+    required this.pid,
+    required this.vid,
+    required this.crpl,
+    required this.relay,
+    required this.proxy,
+    required this.friends,
+    required this.lowPower,
+    required this.loc,
+    required this.models,
+    required this.effects,
+    required this.bindModels,
+    required this.public,
+    required this.hubConfig,
+  });
 
-//   factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
-//   Map<String, dynamic> toJson() => _$NodeToJson(this);
-// }
+  factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
+  Map<String, dynamic> toJson() => _$NodeToJson(this);
+}
 
 // // gateway config for TCP
 // @JsonSerializable(explicitToJson: true)

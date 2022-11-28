@@ -56,10 +56,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    /// build appbar
-    PreferredSizeWidget buildAppBar() {
-      return AppBar(
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(
         title: Text(
           "Mesh",
           style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
@@ -81,19 +79,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
             ),
           )
         ],
-      );
-    }
-
-    /// build boody
-    Widget buildBody() {
-      return Column(
+      ),
+      body: Column(
         children: [
-          const SizedBox(
-            height: 10,
-          ),
           // search thiết bị đã pair
           Container(
-            margin: const EdgeInsets.all(10),
+            height: 50,
+            margin: const EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
             child: TextField(
                 onSubmitted: (value) => setState(() {
                       value;
@@ -101,11 +93,11 @@ class _DeviceScreenState extends State<DeviceScreen> {
                 onChanged: (value) => searchProvisioned(value),
                 style: TextStyles.defaultStyle.italic,
                 decoration: InputDecoration(
-                    prefixIcon: const Icon(CupertinoIcons.waveform),
+                    prefixIcon: const Icon(CupertinoIcons.circle_grid_hex_fill),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    labelText: "Tìm kiếm thiết bị")),
+                    labelText: "Tìm kiếm thiết bị....")),
           ),
 
           Text(
@@ -119,19 +111,38 @@ class _DeviceScreenState extends State<DeviceScreen> {
               // else hiển thị danh sách search node
               inputSearch == ""
                   ? Expanded(
-                      child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 100),
-                      itemCount: _nodes.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                            // chuyển sang trang cấu hình
-                            onTap: () => Navigator.push(context,
-                                MaterialPageRoute<void>(builder: (BuildContext context) => const RadarDetailScreen())),
-                            child: ProvisionedNodeItems(
-                                node: _nodes[index], testKey: 'node-${_nodes.indexOf(_nodes[index])}'));
-                      },
-                    ))
+                      child: RefreshIndicator(
+                        onRefresh: () {
+                          return Future.delayed(
+                            const Duration(seconds: 3),
+                            () {
+                              setState(() {
+                                // widget.meshNetwork.nodes.then((value) => setState(() => _nodes = value));
+                              });
+                            },
+                          );
+                        },
+                        child: ListView.builder(
+                          // shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 100),
+                          itemCount: _nodes.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              // chuyển sang trang cấu hình
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute<void>(
+                                      builder: (BuildContext context) => const RadarDetailScreen())),
+                              child: ProvisionedNodeItems(
+                                node: _nodes[index],
+                                testKey: 'node-${_nodes.indexOf(_nodes[index])}',
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    )
                   : Expanded(
                       child: ListView.builder(
                         physics: const BouncingScrollPhysics(),
@@ -154,36 +165,17 @@ class _DeviceScreenState extends State<DeviceScreen> {
                       ),
                     ),
         ],
-      );
-    }
-
-    /// build floating btn
-    /// chuyển qua trang scan thiết bị
-    void floatingActionBtnOnTapped() {
-      Navigator.push(context, MaterialPageRoute<void>(builder: (BuildContext context) {
-        return UnProvisionedDeviceListScreen(
-          nrfMesh: widget.nrfMesh,
-        );
-      })).then((value) {
-        setState(() {
-          widget.meshNetwork.nodes.then((value) => setState(() => _nodes = value));
-        });
-      });
-    }
-
-    Widget buildFloatingActionBtn() {
-      return FloatingActionButton.extended(
-        label: const Text('Thêm thiết bị'),
-        icon: const Icon(CupertinoIcons.add),
-        onPressed: () => floatingActionBtnOnTapped(),
-      );
-    }
-
-    return SafeArea(
-        child: Scaffold(
-      appBar: buildAppBar(),
-      body: buildBody(),
-      floatingActionButton: buildFloatingActionBtn(),
-    ));
-  }
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+          label: const Text('Thêm thiết bị'),
+          icon: const Icon(CupertinoIcons.add),
+          onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (BuildContext context) {
+                return UnProvisionedDeviceListScreen(
+                  nrfMesh: widget.nrfMesh,
+                );
+              })).then((value) {
+                setState(() {
+                  // widget.meshNetwork.nodes.then((value) => setState(() => _nodes = value));
+                });
+              })));
 }

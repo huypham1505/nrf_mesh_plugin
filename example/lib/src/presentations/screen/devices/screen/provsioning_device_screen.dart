@@ -148,7 +148,7 @@ class _ProvisioningDeviceScreenState extends State<ProvisioningDeviceScreen> {
 
     return Scaffold(
       appBar: buildAppBar(),
-      body: Container(),
+      body: buildBody(),
     );
   }
 }

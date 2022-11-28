@@ -9,7 +9,7 @@ class ModelNode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      children: <Widget>[Text('Model: ${model.modelId} '), appKeyBindIcon(), const Text(', ')],
+      children: <Widget>[Text('SigMesh: 0x${model.modelId.toRadixString(16)}'), appKeyBindIcon()],
     );
   }
 

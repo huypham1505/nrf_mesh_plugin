@@ -92,47 +92,56 @@ class _GroupScreenState extends State<GroupScreen> {
     /// build boody
     Widget buildBody() {
       return Column(children: [
-        Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-                controller: txtController,
-                onChanged: (value) => searchData(value),
-                onSubmitted: (value) {
-                  setState(() {
-                    value;
-                  });
-                },
-                style: TextStyles.defaultStyle.italic,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    labelText: "Tìm kiếm thiết bị ..."))),
+        Container(
+          height: 50,
+          margin: const EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
+          child: TextField(
+              controller: txtController,
+              onChanged: (value) => searchData(value),
+              onSubmitted: (value) {
+                setState(() {
+                  value;
+                });
+              },
+              style: TextStyles.defaultStyle.italic,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.groups_rounded),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  labelText: "Tìm kiếm nhóm....")),
+        ),
         // hiển thị tổng số nhóm
         Text(
           inputSearch == "" ? 'Tổng số nhóm (${_groups.length})' : 'Tổng số node (${_searchGroups.length})',
           style: TextStyles.defaultStyle.bold,
         ),
         _groups.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      CupertinoIcons.antenna_radiowaves_left_right,
-                      size: 30,
+            ? Column(
+                children: [
+                  const SizedBox(
+                    height: 100,
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.antenna_radiowaves_left_right,
+                          size: 30,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Không có nhóm nào được thêm",
+                          style: TextStyles.defaultStyle.bold.blueTextColor,
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "Không có nhóm nào được thêm",
-                      style: TextStyles.defaultStyle.bold.blueTextColor,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               )
             :
             // Check input trỗng thì hiển thị danh sách group

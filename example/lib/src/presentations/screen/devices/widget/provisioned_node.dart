@@ -21,33 +21,38 @@ class _ProvisionedNodeItemsState extends State<ProvisionedNodeItems> {
   void initState() {
     super.initState();
     widget.node.unicastAddress.then((value) => setState(() => _nodeAdress = value.toString()));
-    // widget.node.elements.then((value) => setState(() => _elements = value));
+    widget.node.elements.then((value) => setState(() => _elements = value));
     widget.node.name.then((value) => setState(() => _name = value.toString()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-        key: Key(widget.testKey),
-        margin: const EdgeInsets.only(right: 10, left: 10, top: 5, bottom: 5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+      key: Key(widget.testKey),
+      margin: const EdgeInsets.only(right: 10, left: 10, top: 5, bottom: 5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        leading: Image.asset(
+          "assets/icons/paired_node.png",
+          height: 40,
+          width: 40,
         ),
-        child: ListTile(
-          leading: Image.asset(
-            "assets/icons/paired_node.png",
-            height: 40,
-            width: 40,
-          ),
-          title: Text(
-            _name,
-            style: TextStyles.defaultStyle.medium,
-          ),
-          // subtitle: Column(
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   children: [..._elements.map((e) => ElementNodeData(elmentData: e))],
-          // ),
-        ));
+        title: Text(
+          _name,
+          style: TextStyles.defaultStyle.medium,
+        ),
+        subtitle: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ..._elements.map(
+              (e) => ElementNodeData(elmentData: e),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -3,17 +3,24 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
+
 import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import 'commands/send_config_model_publication_add.dart';
+import 'commands/send_config_model_subscription_add.dart';
+import 'commands/send_deprovisioning.dart';
+import 'commands/send_generic_level.dart';
 import 'commands/send_generic_on_off.dart';
 
 class DeviceModule extends StatefulWidget {
   final DiscoveredDevice device;
+  // final ProvisionedMeshNode nodeIndex;
   final MeshManagerApi meshManagerApi;
   const DeviceModule({
     Key? key,
     required this.device,
     required this.meshManagerApi,
+    // required this.nodeIndex,
   }) : super(key: key);
 
   @override
@@ -25,6 +32,10 @@ class _DeviceModuleState extends State<DeviceModule> {
 
   bool isLoading = true;
   late List<ProvisionedMeshNode> nodes;
+
+  // late ElementData elementData;
+
+  // auto set blind appkey
   Future<void> _init() async {
     bleMeshManager.callbacks = DoozProvisionedBleMeshManagerCallbacks(widget.meshManagerApi, bleMeshManager);
     await bleMeshManager.connect(widget.device);
@@ -34,6 +45,8 @@ class _DeviceModuleState extends State<DeviceModule> {
     for (final node in nodes) {
       final elements = await node.elements;
       for (final element in elements) {
+        // elementData = element;
+        debugPrint('Element data cua thiet bi: ${element.address.toString()}');
         for (final model in element.models) {
           if (model.boundAppKey.isEmpty) {
             if (element == elements.first && model == element.models.first) {
@@ -73,24 +86,6 @@ class _DeviceModuleState extends State<DeviceModule> {
     super.dispose();
   }
 
-// Chuyển thành uuid cho android device
-  String getDeviceUuid(List<int> serviceData) {
-    var msb = 0;
-    var lsb = 0;
-    for (var i = 0; i < 8; i++) {
-      msb = (msb << 8) | (serviceData[i] & 0xff);
-    }
-    for (var i = 8; i < 16; i++) {
-      lsb = (lsb << 8) | (serviceData[i] & 0xff);
-    }
-    return '${_digits(msb >> 32, 8)}-${_digits(msb >> 16, 4)}-${_digits(msb, 4)}-${_digits(lsb >> 48, 4)}-${_digits(lsb, 12)}';
-  }
-
-  String _digits(int val, int digits) {
-    var hi = 1 << (digits * 4);
-    return (hi | (val & (hi - 1))).toRadixString(16).substring(1);
-  }
-
   @override
   Widget build(BuildContext context) {
     /// build appbar
@@ -110,19 +105,16 @@ class _DeviceModuleState extends State<DeviceModule> {
         child: Column(
           children: [
             ListTile(
-              leading: const Icon(Icons.label),
-              title: Text(widget.device.name, style: TextStyles.defaultStyle.regular.fontTitle),
+              title: Text("Tên thiết bị", style: TextStyles.defaultStyle.bold),
+              subtitle: Text(widget.device.name, style: TextStyles.defaultStyle.regular),
             ),
-            // ListTile(
-            //   leading: const Icon(Icons.label),
-            //   title: Text(
-            //     Uuid.parse(getDeviceUuid(widget.device.serviceData[meshProvisioningUuid]!.toList())).toString(),
-            //     style: TextStyles.defaultStyle.regular,
-            //   ),
-            // ),
-            // const SizedBox(height: 30),
-            // const Divider(),
-            SendGenericOnOff(meshManagerApi: widget.meshManagerApi),
+//             SendGenericLevel(meshManagerApi: widget.meshManagerApi),
+            SendGenericOnOff(
+              meshManagerApi: widget.meshManagerApi,
+            ),
+            // SendConfigModelPublicationAdd(widget.meshManagerApi),
+            // SendConfigModelSubscriptionAdd(widget.meshManagerApi),
+            // SendDeprovisioning(meshManagerApi: widget.meshManagerApi),
           ],
         ),
       );
@@ -132,14 +124,10 @@ class _DeviceModuleState extends State<DeviceModule> {
       appBar: buildAppBar(),
       body: isLoading
           ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  CircularProgressIndicator(),
-                  Text('Connecting ...'),
-                ],
-              ),
-            )
+              child: Column(mainAxisSize: MainAxisSize.min, children: const [
+              CircularProgressIndicator(),
+              Text('Connecting ...'),
+            ]))
           : buildBody(),
     );
   }

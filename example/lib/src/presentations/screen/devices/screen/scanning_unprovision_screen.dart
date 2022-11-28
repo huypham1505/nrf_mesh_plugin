@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
 import '../../../widget/no_found_screen.dart';
+import '../control_module/device_module.dart';
 import '../provider/ble_scanner.dart';
 import '../widget/unprovisioned_node.dart';
 
@@ -141,14 +142,27 @@ class _DeviceListState extends State<_DeviceList> {
 
       unawaited(provisionedMeshNodeF.then((node) {
         Get.back();
-        Get.snackbar(
-          "Ghép nối thiết bị thành công",
-          "Bắt đầu sử dụng thiết bị thôi",
-          icon: const Icon(Icons.done, color: Colors.greenAccent),
-          backgroundColor: Colors.white70,
-          snackPosition: SnackPosition.TOP,
+        Get.snackbar("Ghép nối thiết bị thành công", "Bắt đầu chuyển sang trang cấu hình ${device.name}",
+            icon: const Icon(Icons.done, color: Colors.green),
+            backgroundColor: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            snackStyle: SnackStyle.FLOATING,
+            isDismissible: true);
+        // Future.delayed(const Duration(milliseconds: 2000), () => Navigator.of(context).pop()).whenComplete(
+        //   () =>
+        // );
+        Get.back();
+        Future.delayed(const Duration(milliseconds: 3000), () => Navigator.of(context).pop()).whenComplete(
+          () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => DeviceModule(
+                meshManagerApi: widget.nrfMesh.meshManagerApi,
+                device: device,
+              ),
+            ),
+          ),
         );
-        Future.delayed(const Duration(milliseconds: 1000), () => Navigator.of(context).pop());
       }).catchError((_) {
         Navigator.of(context).pop();
         Get.snackbar(

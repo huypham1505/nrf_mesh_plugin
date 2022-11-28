@@ -7,14 +7,14 @@ class ElementNodeData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // debugPrint(elmentData.models.map((e) => e.modelId.toRadixString(16)).toString());
+    // debugPrint(elmentData.models.map((e) => e.boundAppKey).toString());
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Tên: ${elmentData.name}'),
-        Text('Address: ${elmentData.address}'),
+        Text(elmentData.name),
         Text('Models: ${elmentData.models.length}'),
-        // ...elmentData.models.map((e) => ModelNode(e)),
       ],
     );
   }

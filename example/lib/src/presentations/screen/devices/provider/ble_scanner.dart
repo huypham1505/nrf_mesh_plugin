@@ -32,8 +32,8 @@ class BleScanner implements ReactiveState<BleScannerState> {
       if (knownDeviceIndex >= 0) {
         _devices[knownDeviceIndex] = device;
       } else {
-        final deviceUuid = Uuid.parse(getDeviceUuid(device.serviceData[meshProvisioningUuid]!.toList()));
-        debugPrint('deviceUuid: $deviceUuid');
+        // final deviceUuid = Uuid.parse(getDeviceUuid(device.serviceData[meshProvisioningUuid]!.toList()));
+        // debugPrint('deviceUuid: $deviceUuid');
         _devices.add(device);
       }
       _pushState();

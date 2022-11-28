@@ -8,6 +8,8 @@ import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:settings_ui/settings_ui.dart';
 import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import '../../../../data/model/mesh_network/mesh_data.dart';
+import 'details/provisioner/provisioner_screen.dart';
 import 'export_screen.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -24,45 +26,34 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  bool indexIV = false;
   late String name = "loading...";
-  late String netKeyName = "loading...";
+  late String netKeyLen = "loading...";
+  late String appKeyLen = "loading...";
   late String provisioner = "loading...";
   late String scences = "loading...";
   late String lastReset = "loading...";
   late String version = "loading...";
   late List<Provisioner> provisioners = [];
-
-  Future<String> getMeshNetName() async {
-    final name = await widget.meshNetwork.name;
-    return name;
-  }
-
+  late List<NetworkKey> netWorkKeys = [];
   final titleProvider = Provider((_) => 'Cài đặt');
-
   @override
   void initState() {
     super.initState();
     widget.meshNetwork.name.then((value) => setState(() => name = value));
     widget.meshNetwork.provisioners.then((value) => setState(() => provisioners = value));
-    getNetKey();
+
     getDataFormJsonData();
   }
 
-  Future getDataFormJsonData() async {
+  Future<MeshModel> getDataFormJsonData() async {
     final data = await widget.meshManagerApi.exportMeshNetwork();
-    final jsonData = jsonDecode(data!);
-    debugPrint(jsonData['appKeys'].toString());
-  }
-
-  Future getNetKey() async {
-    final dataNetKey = await widget.meshNetwork.getNetKey(0);
-    debugPrint(dataNetKey!.meshUuid);
-    debugPrint(dataNetKey.identityKey.toString());
-    debugPrint(dataNetKey.oldNetKeyBytes.toString());
-    debugPrint(dataNetKey.oldIdentityKey.toString());
-    debugPrint(dataNetKey.netKeyBytes.toString());
-    debugPrint(dataNetKey.netKeyIndex.toString());
-    netKeyName = dataNetKey.name;
+    final jsonData = await jsonDecode(data!);
+    lastReset = jsonData['timestamp'].toString();
+    MeshModel meshModel = MeshModel.fromJson(jsonData);
+    appKeyLen = meshModel.appKeys!.length.toString();
+    netKeyLen = meshModel.netKeys!.length.toString();
+    return meshModel;
   }
 
   @override
@@ -87,6 +78,7 @@ class _SettingScreenState extends State<SettingScreen> {
         ),
         centerTitle: true,
         actions: [
+          // menu pop up
           PopupMenuButton<int>(
             itemBuilder: (context) => [
               /// Xuất dữ liệu (file json)
@@ -142,6 +134,9 @@ class _SettingScreenState extends State<SettingScreen> {
                                 final json = await file.readAsString();
                                 await widget.meshManagerApi.importMeshNetworkJson(json);
                               })).whenComplete(() {
+                                setState(() {
+                                  getDataFormJsonData();
+                                });
                                 Get.snackbar(
                                   "Dữ liệu",
                                   'Nhập dữ liệu mới vào hệ thống thành công',
@@ -202,6 +197,9 @@ class _SettingScreenState extends State<SettingScreen> {
                                   duration: const Duration(seconds: 2),
                                   isDismissible: true,
                                 );
+                                setState(() {
+                                  getDataFormJsonData();
+                                });
                               });
                             }),
                             child: Text(
@@ -234,61 +232,85 @@ class _SettingScreenState extends State<SettingScreen> {
             tiles: <SettingsTile>[
               // hện tên mesh network
               SettingsTile.navigation(
+                leading: const Icon(Icons.label),
                 title: Text('Tên', style: TextStyles.defaultStyle.semibold),
                 value: Text(name, style: TextStyles.defaultStyle),
               ),
 
               // hiện tổng số provisioner
               SettingsTile.navigation(
+                onPressed: (context) => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => ProvisionerScreen(
+                      provisioners: provisioners,
+                      meshManagerApi: widget.meshManagerApi,
+                    ),
+                  ),
+                ),
+                leading: const Icon(Icons.list_rounded),
                 title: Text('Provisioner', style: TextStyles.defaultStyle.semibold),
                 value: Text(provisioners.length.toString(), style: TextStyles.defaultStyle),
               ),
 
               // hiện tổng số netkey
               SettingsTile.navigation(
+                leading: const Icon(Icons.key_rounded),
                 title: Text('Network Keys', style: TextStyles.defaultStyle.semibold),
-                value: Text("1", style: TextStyles.defaultStyle),
+                value: Text(netKeyLen, style: TextStyles.defaultStyle),
               ),
 
               // hiện tổng số appkey
               SettingsTile.navigation(
+                leading: const Icon(Icons.app_registration),
                 title: Text('App Keys', style: TextStyles.defaultStyle.semibold),
-                value: Text('3', style: TextStyles.defaultStyle),
+                value: Text(appKeyLen, style: TextStyles.defaultStyle),
               ),
-              // SettingsTile.navigation(
-              //   title: Text('Ngữ cảnh', style: TextStyles.defaultStyle.semibold),
-              //   value: Text('0', style: TextStyles.defaultStyle),
-              // ),
-              // SettingsTile.switchTile(
-              //   onToggle: (value) {},
-              //   initialValue: false,
-              //   title: Text('Chế độ kiểm tra IV', style: TextStyles.defaultStyle.semibold),
-              // ),
-              // SettingsTile.navigation(
-              //   title: Text('Chỉnh sửa lần cuối', style: TextStyles.defaultStyle.semibold),
-              //   value: Text(lastReset, style: TextStyles.defaultStyle),
-              // ),
+              SettingsTile.navigation(
+                leading: const Icon(Icons.view_array),
+                title: Text('Ngữ cảnh', style: TextStyles.defaultStyle.semibold),
+                value: Text('0', style: TextStyles.defaultStyle),
+              ),
+              SettingsTile.switchTile(
+                leading: const Icon(Icons.switch_access_shortcut_rounded),
+                onToggle: (value) {
+                  setState(() {
+                    indexIV = value;
+                  });
+                },
+                initialValue: indexIV,
+                title: Text('Chế độ kiểm tra IV', style: TextStyles.defaultStyle.semibold),
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(Icons.change_circle_rounded),
+                title: Text('Chỉnh sửa lần cuối', style: TextStyles.defaultStyle.semibold),
+                value: Text(lastReset, style: TextStyles.defaultStyle),
+              ),
             ],
           ),
-          // SettingsSection(
-          //   tiles: <SettingsTile>[
-          //     SettingsTile.navigation(
-          //       title: Text('Thông tim phiên bản', style: TextStyles.defaultStyle.semibold),
-          //     ),
-          //     SettingsTile.navigation(
-          //       title: Text('Phiên bản phần mềm', style: TextStyles.defaultStyle.semibold),
-          //       value: Text('1.0.0', style: TextStyles.defaultStyle),
-          //     ),
-          //   ],
-          // ),
+          SettingsSection(
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                leading: const Icon(Icons.download_done_rounded),
+                title: Text('Thông tin phiên bản', style: TextStyles.defaultStyle.semibold),
+                value: Text('1.0.0', style: TextStyles.defaultStyle),
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(Icons.info),
+                title: Text('Phiên bản phần mềm', style: TextStyles.defaultStyle.semibold),
+                value: Text('1.0.0', style: TextStyles.defaultStyle),
+              ),
+            ],
+          ),
         ],
       );
     }
 
     return SafeArea(
-        child: Scaffold(
-      appBar: buildAppBar(),
-      body: buildBody(),
-    ));
+      child: Scaffold(
+        appBar: buildAppBar(),
+        body: buildBody(),
+      ),
+    );
   }
 }
