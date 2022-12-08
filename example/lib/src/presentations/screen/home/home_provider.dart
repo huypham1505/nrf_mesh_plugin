@@ -1,3 +1,5 @@
+import '../../screen/devices/provider/ble_logger2.dart';
+import '../../screen/devices/provider/ble_scanner2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:get/get.dart';
@@ -5,9 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../config/router.dart';
 import '../devices/provider/ble_logger.dart';
-import '../devices/provider/ble_logger2.dart';
 import '../devices/provider/ble_scanner.dart';
-import '../devices/provider/ble_scanner2.dart';
 
 class HomeProvider extends StatelessWidget {
   const HomeProvider({Key? key}) : super(key: key);
@@ -41,11 +41,11 @@ class HomeProvider extends StatelessWidget {
         ),
       ],
       child: GetMaterialApp(
-        title: 'Flutter Mesh Application',
+        title: 'ApolloMeshApp',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        // theme: ThemeData(
+        //   primarySwatch: Colors.blue,
+        // ),
         initialRoute: AppRouters.getSplashScreen(),
         getPages: AppRouters.routes,
       ),

@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
-import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import '../../../widget/app_bar_main.dart';
 import '../../../widget/no_found_screen.dart';
 import '../details/product1/radar_detail_screen.dart';
 import '../widget/provisioned_node.dart';
-import 'scanning_provisioned_screen.dart';
 import 'scanning_unprovision_screen.dart';
 
 class DeviceScreen extends StatefulWidget {
@@ -26,7 +25,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
   List<ProvisionedMeshNode> _nodes = [];
   List<ProvisionedMeshNode> _searchNodes = [];
   late String inputSearch = "";
-  late String _name = "";
 
   @override
   void initState() {
@@ -57,28 +55,10 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Mesh",
-          style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
+      appBar: CustomAppBarMain(
         centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(builder: (BuildContext context) {
-                return ProvisionedDeviceListScreen(nrfMesh: widget.nrfMesh);
-              }));
-            },
-            child: Text(
-              "Kết nối",
-              style: TextStyles.defaultStyle.bold.whiteTextColor,
-            ),
-          )
-        ],
+        nrfMesh: widget.nrfMesh,
+        title: "Thiết bị",
       ),
       body: Column(
         children: [
@@ -99,7 +79,6 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     ),
                     labelText: "Tìm kiếm thiết bị....")),
           ),
-
           Text(
             inputSearch == "" ? 'Tổng số node (${_nodes.length})' : 'Tổng số node (${_searchNodes.length})',
             style: TextStyles.defaultStyle.bold,
@@ -130,10 +109,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                           itemBuilder: (context, index) {
                             return InkWell(
                               // chuyển sang trang cấu hình
-                              onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                      builder: (BuildContext context) => const RadarDetailScreen())),
+                              onTap: () {},
                               child: ProvisionedNodeItems(
                                 node: _nodes[index],
                                 testKey: 'node-${_nodes.indexOf(_nodes[index])}',
@@ -166,6 +142,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
                     ),
         ],
       ),
+      // floating btn
       floatingActionButton: FloatingActionButton.extended(
           label: const Text('Thêm thiết bị'),
           icon: const Icon(CupertinoIcons.add),

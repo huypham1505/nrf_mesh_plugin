@@ -16,7 +16,6 @@ class BleScanner2 implements ReactiveState<BleScanner2State> {
   final FlutterReactiveBle _ble;
   final void Function(String message) _logMessage;
   final StreamController<BleScanner2State> _stateStreamController = StreamController();
-
   final _devices = <DiscoveredDevice>[];
 
   @override
@@ -32,29 +31,12 @@ class BleScanner2 implements ReactiveState<BleScanner2State> {
       if (showedDevice >= 0) {
         _devices[showedDevice] = device;
       } else {
-        debugPrint('Device name: ${device.name}');
+        debugPrint('Device name: ${device.id}');
         _devices.add(device);
       }
       _pushState();
     }, onError: (Object e) => _logMessage('Dò tìm thiết bị lỗi 💢: $e'));
     _pushState();
-  }
-
-  String getDeviceUuid(List<int> serviceData) {
-    var msb = 0;
-    var lsb = 0;
-    for (var i = 0; i < 8; i++) {
-      msb = (msb << 8) | (serviceData[i] & 0xff);
-    }
-    for (var i = 8; i < 16; i++) {
-      lsb = (lsb << 8) | (serviceData[i] & 0xff);
-    }
-    return '${_digits(msb >> 32, 8)}-${_digits(msb >> 16, 4)}-${_digits(msb, 4)}-${_digits(lsb >> 48, 4)}-${_digits(lsb, 12)}';
-  }
-
-  String _digits(int val, int digits) {
-    var hi = 1 << (digits * 4);
-    return (hi | (val & (hi - 1))).toRadixString(16).substring(1);
   }
 
   void _pushState() {

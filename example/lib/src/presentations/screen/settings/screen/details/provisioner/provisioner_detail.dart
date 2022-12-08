@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 
-import '../../../../../../config/palettes.dart';
 import '../../../../../../config/text_style.dart';
+import '../../../../../widget/app_bar.dart';
 
 class ProvisionerDetail extends StatefulWidget {
   final Provisioner provisioner;
@@ -16,26 +18,27 @@ class _ProvisionerDetailState extends State<ProvisionerDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.provisioner.provisionerName,
-          style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
+      appBar: CustomAppBar(
         centerTitle: false,
+        title: widget.provisioner.provisionerName,
+        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
       ),
       body: SingleChildScrollView(
           child: Column(
         children: [
           ListTile(
-            title: Text("Provisioner", style: TextStyles.defaultStyle.bold.fontTitle.redTextColor),
+            title: Text("Edit ${widget.provisioner.provisionerName}",
+                style: TextStyles.defaultStyle.bold.fontTitle.redTextColor),
           ),
           ListTile(
             leading: const Icon(Icons.label_important_rounded),
             title: Text("Tên", style: TextStyles.defaultStyle.bold),
             subtitle: Text(widget.provisioner.provisionerName, style: TextStyles.defaultStyle.regular),
+          ),
+          ListTile(
+            leading: const Icon(Icons.label_important_rounded),
+            title: Text("In Use", style: TextStyles.defaultStyle.bold),
+            subtitle: Text(widget.provisioner.lastSelected.toString(), style: TextStyles.defaultStyle.regular),
           ),
           ListTile(
             leading: const Icon(Icons.access_time),

@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import '../../../config/palettes.dart';
 import '../../../config/text_style.dart';
+import '../../widget/app_bar.dart';
 
 class GroupDetailScreen extends StatefulWidget {
   final GroupData groupData;
@@ -18,35 +21,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   @override
   Widget build(BuildContext context) {
     /// build appbar
-    void appBarActionOnTapped() {}
-
     PreferredSizeWidget buildAppBar() {
-      return AppBar(
-        title: Column(
-          children: [
-            Text(
-              widget.groupData.name,
-              style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-            ),
-            Text(
-              ' 0x${widget.groupData.address.toRadixString(16)}',
-              style: TextStyles.defaultStyle.whiteTextColor.regular,
-            ),
-          ],
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
+      return CustomAppBar(
+        title: widget.groupData.name,
         centerTitle: false,
-        actions: [
-          TextButton(
-            onPressed: () => appBarActionOnTapped(),
-            child: Text(
-              "Kết nối",
-              style: TextStyles.defaultStyle.bold.whiteTextColor,
-            ),
-          )
-        ],
+        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
+        subTitle: '0x${widget.groupData.address.toRadixString(16).padLeft(4, "0")}',
       );
     }
 
@@ -57,10 +37,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
       );
     }
 
-    return SafeArea(
-        child: Scaffold(
+    return Scaffold(
       appBar: buildAppBar(),
       body: buildBody(),
-    ));
+    );
   }
 }

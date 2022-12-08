@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import '../../../widget/app_bar.dart';
 import '../../../widget/no_found_screen.dart';
 import '../control_module/device_module.dart';
 import '../provider/ble_scanner2.dart';
@@ -69,7 +71,7 @@ class _DeviceListState extends State<_DeviceList> {
   }
 
 // hàm search
-  void searchUnprovisioned(String input) {
+  void searchProvisioned(String input) {
     inputSearch = input;
     if (inputSearch.isEmpty) {
       listData = widget.scannerState.discoveredDevices;
@@ -107,32 +109,36 @@ class _DeviceListState extends State<_DeviceList> {
     }
   }
 
+// chuyển tới trang cấu hình thiết bị
+  Future<void> navToProvisionedNode(DiscoveredDevice device) async {
+    setState(() {
+      widget.stopScan;
+    });
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => DeviceModule(
+          meshManagerApi: widget.nrfMesh.meshManagerApi,
+          device: device,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Quét",
-                style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-              ),
-              Text(
-                "Tìm kiếm các thiết bị chưa ghép nối",
-                style: TextStyles.defaultStyle.whiteTextColor,
-              )
-            ],
-          ),
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-          ),
+        appBar: CustomAppBar(
+          title: "Quét",
+          centerTitle: false,
+          subTitle: "Dò tìm các thiết bị đã ghép nối",
+          leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
         ),
         body: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(10),
               child: TextField(
-                onChanged: (value) => searchUnprovisioned(value),
+                onChanged: (value) => searchProvisioned(value),
                 style: TextStyles.defaultStyle.italic,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
@@ -154,18 +160,8 @@ class _DeviceListState extends State<_DeviceList> {
                           itemCount: widget.scannerState.discoveredDevices.length,
                           itemBuilder: (context, index) {
                             return InkWell(
-                                onTap: () {
-                                  widget.stopScan;
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) => DeviceModule(
-                                        meshManagerApi: widget.nrfMesh.meshManagerApi,
-                                        device: widget.scannerState.discoveredDevices[index],
-                                      ),
-                                    ),
-                                  );
-                                },
+                                onTap: () async =>
+                                    await navToProvisionedNode(widget.scannerState.discoveredDevices[index]),
                                 child: UnprovisionedNode(
                                   device: widget.scannerState.discoveredDevices.elementAt(index),
                                 ));
@@ -180,9 +176,10 @@ class _DeviceListState extends State<_DeviceList> {
                       itemCount: listData.length,
                       itemBuilder: (context, index) {
                         return InkWell(
+                            onTap: () async => await navToProvisionedNode(listData[index]),
                             child: UnprovisionedNode(
-                          device: listData.elementAt(index),
-                        ));
+                              device: listData.elementAt(index),
+                            ));
                       },
                     ),
                   ),

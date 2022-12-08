@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:settings_ui/settings_ui.dart';
 import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
 import '../../../../data/model/mesh_network/mesh_data.dart';
+import 'details/appkey/appkey_screen.dart';
+import 'details/netkey/netkey_screen.dart';
 import 'details/provisioner/provisioner_screen.dart';
 import 'export_screen.dart';
 
@@ -35,14 +37,14 @@ class _SettingScreenState extends State<SettingScreen> {
   late String lastReset = "loading...";
   late String version = "loading...";
   late List<Provisioner> provisioners = [];
-  late List<NetworkKey> netWorkKeys = [];
-  final titleProvider = Provider((_) => 'Cài đặt');
+  late List<NetKeys> networkKey = [];
+  late List<AppKeys> appKey = [];
+
   @override
   void initState() {
     super.initState();
     widget.meshNetwork.name.then((value) => setState(() => name = value));
     widget.meshNetwork.provisioners.then((value) => setState(() => provisioners = value));
-
     getDataFormJsonData();
   }
 
@@ -51,6 +53,8 @@ class _SettingScreenState extends State<SettingScreen> {
     final jsonData = await jsonDecode(data!);
     lastReset = jsonData['timestamp'].toString();
     MeshModel meshModel = MeshModel.fromJson(jsonData);
+    networkKey = meshModel.netKeys!;
+    appKey = meshModel.appKeys!;
     appKeyLen = meshModel.appKeys!.length.toString();
     netKeyLen = meshModel.netKeys!.length.toString();
     return meshModel;
@@ -61,6 +65,7 @@ class _SettingScreenState extends State<SettingScreen> {
     super.didUpdateWidget(oldWidget);
     widget.meshNetwork.name.then((value) => setState(() => name = value));
     widget.meshNetwork.provisioners.then((value) => setState(() => provisioners = value));
+    // widget.meshNetwork.networkKeys.then((value) => setState(() => networkKey = value));
   }
 
   @override
@@ -68,10 +73,9 @@ class _SettingScreenState extends State<SettingScreen> {
     /// build appbar
     PreferredSizeWidget buildAppBar() {
       return AppBar(
-        title: Consumer(
-          builder: (context, ref, child) {
-            return Text(ref.watch(titleProvider));
-          },
+        title: Text(
+          'Cài đặt',
+          style: TextStyles.defaultStyle.fontHeader.whiteTextColor.bold.textSpacing(1),
         ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
@@ -80,6 +84,12 @@ class _SettingScreenState extends State<SettingScreen> {
         actions: [
           // menu pop up
           PopupMenuButton<int>(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(12),
+              ),
+            ),
+            icon: const Icon(CupertinoIcons.folder_fill),
             itemBuilder: (context) => [
               /// Xuất dữ liệu (file json)
               PopupMenuItem(
@@ -129,11 +139,24 @@ class _SettingScreenState extends State<SettingScreen> {
                               Future.delayed(const Duration(seconds: 0), (() async {
                                 Get.back();
                                 final filePath = await FilePicker.platform.pickFiles(type: FileType.any);
-                                if (filePath == null) return;
+                                if (filePath == null) {
+                                  setState(() {
+                                    getDataFormJsonData();
+                                  });
+                                  return Get.snackbar(
+                                    "Dữ liệu",
+                                    'Nhập dữ liệu mới vào hệ thống thất bại\n Hãy chọn file .json để nhập dữ liệu mới',
+                                    icon: const Icon(Icons.error, color: Colors.red),
+                                    backgroundColor: Colors.white,
+                                    snackPosition: SnackPosition.TOP,
+                                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                                    duration: const Duration(seconds: 2),
+                                    isDismissible: true,
+                                  );
+                                }
                                 final file = File(filePath.paths.first!);
                                 final json = await file.readAsString();
                                 await widget.meshManagerApi.importMeshNetworkJson(json);
-                              })).whenComplete(() {
                                 setState(() {
                                   getDataFormJsonData();
                                 });
@@ -147,7 +170,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                   duration: const Duration(seconds: 2),
                                   isDismissible: true,
                                 );
-                              });
+                              }));
                             },
                             child: Text(
                               "Ok",
@@ -243,7 +266,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   context,
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) => ProvisionerScreen(
-                      provisioners: provisioners,
+                      meshNetwork: widget.meshNetwork,
                       meshManagerApi: widget.meshManagerApi,
                     ),
                   ),
@@ -255,6 +278,15 @@ class _SettingScreenState extends State<SettingScreen> {
 
               // hiện tổng số netkey
               SettingsTile.navigation(
+                onPressed: (context) => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => NetkeyScreen(
+                      netKey: networkKey,
+                      meshManagerApi: widget.meshManagerApi,
+                    ),
+                  ),
+                ),
                 leading: const Icon(Icons.key_rounded),
                 title: Text('Network Keys', style: TextStyles.defaultStyle.semibold),
                 value: Text(netKeyLen, style: TextStyles.defaultStyle),
@@ -262,10 +294,21 @@ class _SettingScreenState extends State<SettingScreen> {
 
               // hiện tổng số appkey
               SettingsTile.navigation(
+                onPressed: (context) => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => AppkeyScreen(
+                      appKeys: appKey,
+                      meshManagerApi: widget.meshManagerApi,
+                    ),
+                  ),
+                ),
                 leading: const Icon(Icons.app_registration),
                 title: Text('App Keys', style: TextStyles.defaultStyle.semibold),
                 value: Text(appKeyLen, style: TextStyles.defaultStyle),
               ),
+
+              // hiện tổng số ngữ cảnh
               SettingsTile.navigation(
                 leading: const Icon(Icons.view_array),
                 title: Text('Ngữ cảnh', style: TextStyles.defaultStyle.semibold),
@@ -306,10 +349,16 @@ class _SettingScreenState extends State<SettingScreen> {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: buildAppBar(),
-        body: buildBody(),
+    return Scaffold(
+      appBar: buildAppBar(),
+      body: buildBody(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {},
+        icon: const Icon(Icons.light_mode_rounded),
+        label: const Text('  Day '),
+        // backgroundColor: currentColor,
+        // foregroundColor: foregroundColor,
+        // elevation: 15,
       ),
     );
   }

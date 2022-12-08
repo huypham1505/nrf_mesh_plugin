@@ -19,17 +19,10 @@ class _SplashScreenState extends State<SplashScreen> {
     navigateToMainScreen();
   }
 
-  Future navigateToMainScreen() async {
-    Future.delayed(
+  Future navigateToMainScreen() => Future.delayed(
       const Duration(seconds: 3),
       () => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => const MainScreen(),
-        ),
-      ),
-    );
-  }
+          context, MaterialPageRoute<void>(builder: (BuildContext context) => const MainScreen())));
 
   @override
   Widget build(BuildContext context) {

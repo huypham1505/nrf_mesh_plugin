@@ -20,6 +20,13 @@ class Palettes {
   static const Color p10 = Colors.redAccent;
   static const Color p11 = Colors.blueAccent;
 
+  /// Sub palettes
+  static const Color p12 = Color(0xFFABC9FF);
+  static const Color p13 = Color(0xFFFFDEDE);
+  static const Color p14 = Color(0xFFFF8B8B);
+  static const Color p15 = Color(0xFFEB4747);
+  static const Color p16 = Color(0xFFC0D8C0);
+
   /// gradient
   static const Gradient gradientAppBar = LinearGradient(
     begin: Alignment.centerLeft,

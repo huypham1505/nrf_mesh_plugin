@@ -18,14 +18,7 @@ class SendGenericOnOff extends StatefulWidget {
 }
 
 class _SendGenericOnOffState extends State<SendGenericOnOff> {
-  // final ele = widget.elementData.address;
   int? selectedElementAddress;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   selectedElementAddress = widget.elementData.address;
-  //   debugPrint('Element la: $selectedElementAddress');
-  // }
 
   bool onOff = false;
 
@@ -63,9 +56,7 @@ class _SendGenericOnOffState extends State<SendGenericOnOff> {
                     await widget.meshManagerApi
                         .sendGenericOnOffSet(selectedElementAddress!, onOff, sequenceNumber)
                         .timeout(const Duration(seconds: 20));
-                    // scaffoldMessenger.showSnackBar(const SnackBar(content: Text('OK')));
                   } on TimeoutException catch (_) {
-                    // scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Board didn\'t respond')));
                     Get.snackbar(
                       "Lỗi",
                       "Không nhận phản hồi từ thiết bị",

@@ -61,8 +61,12 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> _buildScreens() {
     return [
-      const SceneScreen(),
-      GroupScreen(meshNetwork: _meshNetwork!, meshManagerApi: _meshManagerApi),
+      SceneScreen(nrfMesh: nrfMesh),
+      GroupScreen(
+        meshNetwork: _meshNetwork!,
+        meshManagerApi: _meshManagerApi,
+        nrfMesh: nrfMesh,
+      ),
       DeviceScreen(
         nrfMesh: nrfMesh,
         meshNetwork: _meshNetwork!,
@@ -105,8 +109,12 @@ class _MainScreenState extends State<MainScreen> {
         child: _buildScreens().elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        elevation: 4,
+        type: BottomNavigationBarType.fixed,
         items: _navBarsItems(),
         currentIndex: _selectedIndex,
+        showUnselectedLabels: false,
         selectedItemColor: Colors.redAccent,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,

@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 
-import '../../../config/palettes.dart';
-import '../../../config/text_style.dart';
+import '../../widget/app_bar_main.dart';
 
 class SceneScreen extends StatefulWidget {
-  const SceneScreen({Key? key}) : super(key: key);
+  final NordicNrfMesh nrfMesh;
+
+  const SceneScreen({Key? key, required this.nrfMesh}) : super(key: key);
 
   @override
   State<SceneScreen> createState() => _SceneScreenState();
@@ -14,33 +16,6 @@ class SceneScreen extends StatefulWidget {
 class _SceneScreenState extends State<SceneScreen> {
   @override
   Widget build(BuildContext context) {
-    /// build appbar
-    void appBarActionOnTapped() {
-      print("Appbar action tapped");
-    }
-
-    PreferredSizeWidget buildAppBar() {
-      return AppBar(
-        title: Text(
-          "Mesh",
-          style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () => appBarActionOnTapped(),
-            child: Text(
-              "Kết nối",
-              style: TextStyles.defaultStyle.bold.whiteTextColor,
-            ),
-          )
-        ],
-      );
-    }
-
     /// build boody
     Widget buildBody() {
       return const Center(child: Text("Tính năng đang được phát triển"));
@@ -48,7 +23,7 @@ class _SceneScreenState extends State<SceneScreen> {
 
     /// build floating btn
     void floatingActionBtnOnTapped() {
-      print("Tapped");
+      debugPrint("Tapped");
     }
 
     Widget buildFloatingActionBtn() {
@@ -59,11 +34,14 @@ class _SceneScreenState extends State<SceneScreen> {
       );
     }
 
-    return SafeArea(
-        child: Scaffold(
-      appBar: buildAppBar(),
+    return Scaffold(
+      appBar: CustomAppBarMain(
+        centerTitle: true,
+        nrfMesh: widget.nrfMesh,
+        title: "Ngữ cảnh",
+      ),
       body: buildBody(),
       floatingActionButton: buildFloatingActionBtn(),
-    ));
+    );
   }
 }

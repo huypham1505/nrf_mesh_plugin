@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import '../../../../config/text_style.dart';
@@ -13,15 +14,20 @@ class ProvisionedNodeItems extends StatefulWidget {
 }
 
 class _ProvisionedNodeItemsState extends State<ProvisionedNodeItems> {
-  String _nodeAdress = 'loading...';
   String _name = 'loading...';
   List<ElementData> _elements = [];
 
   @override
   void initState() {
     super.initState();
-    widget.node.unicastAddress.then((value) => setState(() => _nodeAdress = value.toString()));
     widget.node.elements.then((value) => setState(() => _elements = value));
+    widget.node.name.then((value) => setState(() => _name = value.toString()));
+  }
+
+  @override
+  void didUpdateWidget(covariant ProvisionedNodeItems oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // widget.node.elements.then((value) => setState(() => _elements = value));
     widget.node.name.then((value) => setState(() => _name = value.toString()));
   }
 
@@ -47,9 +53,8 @@ class _ProvisionedNodeItemsState extends State<ProvisionedNodeItems> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ..._elements.map(
-              (e) => ElementNodeData(elmentData: e),
-            ),
+            AutoSizeText(widget.node.uuid, style: TextStyles.defaultStyle, maxLines: 1),
+            // ..._elements.map((e) => ElementNodeData(elmentData: e)),
           ],
         ),
       ),

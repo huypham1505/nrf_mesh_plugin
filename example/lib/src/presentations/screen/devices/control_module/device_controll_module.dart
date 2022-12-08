@@ -1,39 +1,36 @@
 import 'dart:async';
-
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
-import '../../../../config/text_style.dart';
+import '../../../../presentations/widget/app_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:get/get.dart';
+import 'package:settings_ui/settings_ui.dart';
+import '../../../../config/text_style.dart';
 
-import '../../../../config/palettes.dart';
-import 'commands/generic/send_generic_level.dart';
-import 'commands/generic/send_generic_on_off.dart';
-import 'commands/send_config_model_publication_add.dart';
-import 'commands/send_config_model_subscription_add.dart';
-import 'commands/send_deprovisioning.dart';
-
-import 'commands/lighting/send_light_hsl.dart';
-
-class DeviceModule extends StatefulWidget {
+class DeviceControllModule extends StatefulWidget {
   final DiscoveredDevice device;
+  final ProvisionedMeshNode nodeData;
   final MeshManagerApi meshManagerApi;
-  const DeviceModule({
+
+  const DeviceControllModule({
     Key? key,
     required this.device,
     required this.meshManagerApi,
+    required this.nodeData,
   }) : super(key: key);
 
   @override
-  State<DeviceModule> createState() => _DeviceModuleState();
+  State<DeviceControllModule> createState() => _DeviceControllModuleState();
 }
 
-class _DeviceModuleState extends State<DeviceModule> {
+class _DeviceControllModuleState extends State<DeviceControllModule> {
   final bleMeshManager = BleMeshManager();
-  late int intSeq = 0;
+
+  late String nodeName = 'Loading';
   bool isLoading = true;
   late List<ProvisionedMeshNode> nodes;
-
-  // late ElementData elementData;
+  List<ElementData> _elements = [];
 
   // auto set blind appkey
   Future<void> _init() async {
@@ -45,6 +42,8 @@ class _DeviceModuleState extends State<DeviceModule> {
     for (final node in nodes) {
       final elements = await node.elements;
       for (final element in elements) {
+        // elementData = element;
+        debugPrint('Element data cua thiet bi: ${element.address.toString()}');
         for (final model in element.models) {
           if (model.boundAppKey.isEmpty) {
             if (element == elements.first && model == element.models.first) {
@@ -52,8 +51,6 @@ class _DeviceModuleState extends State<DeviceModule> {
             }
             final unicast = await node.unicastAddress;
             debugPrint('need to bind app key');
-            intSeq = await widget.meshManagerApi.getSequenceNumber(node);
-            debugPrint('Sequence num: $intSeq');
             await widget.meshManagerApi.sendConfigModelAppBind(
               unicast,
               element.address,
@@ -78,6 +75,8 @@ class _DeviceModuleState extends State<DeviceModule> {
   void initState() {
     super.initState();
     _init();
+    widget.nodeData.name.then((value) => setState(() => nodeName = value));
+    widget.nodeData.elements.then((value) => setState(() => _elements = value));
   }
 
   @override
@@ -88,46 +87,61 @@ class _DeviceModuleState extends State<DeviceModule> {
 
   @override
   Widget build(BuildContext context) {
-    /// build appbar
-    PreferredSizeWidget buildAppBar() {
-      return AppBar(
-        // title: Text(widget.device.name, style: TextStyles.defaultStyle.bold),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
-        centerTitle: false,
-      );
-    }
-
-    //build body
+    /// build boody
     Widget buildBody() {
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            ListTile(
-              title: Text("Tên thiết bị", style: TextStyles.defaultStyle.bold),
-              subtitle: Text(widget.device.name, style: TextStyles.defaultStyle.regular),
-            ),
-            SendGenericLevel(meshManagerApi: widget.meshManagerApi),
-            SendGenericOnOff(meshManagerApi: widget.meshManagerApi),
-            SendConfigModelPublicationAdd(widget.meshManagerApi),
-            SendConfigModelSubscriptionAdd(widget.meshManagerApi),
-            SendLightHsl(meshManagerApi: widget.meshManagerApi, sequence: intSeq),
-            SendDeprovisioning(meshManagerApi: widget.meshManagerApi),
-          ],
-        ),
+      return SettingsList(
+        physics: const BouncingScrollPhysics(),
+        sections: [
+          SettingsSection(
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                onPressed: (context) {},
+                leading: const Icon(Icons.label),
+                title: Text('Tên', style: TextStyles.defaultStyle.semibold),
+                value: Text(nodeName, style: TextStyles.defaultStyle),
+              ),
+            ],
+          ),
+          SettingsSection(
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                leading: const Icon(Icons.list_alt_rounded),
+                title: Text('Elements', style: TextStyles.defaultStyle.semibold),
+                value: ListView.builder(
+                  itemBuilder: (context, index) =>
+                      Text(_elements[index].address.toString(), style: TextStyles.defaultStyle),
+                ),
+              ),
+            ],
+          ),
+          SettingsSection(
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                leading: const Icon(Icons.key_sharp),
+                title: Text('Network Keys', style: TextStyles.defaultStyle.semibold),
+                value: Text('1', style: TextStyles.defaultStyle),
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(Icons.key_rounded),
+                title: Text('Application Keys', style: TextStyles.defaultStyle.semibold),
+                value: Text('0', style: TextStyles.defaultStyle),
+              ),
+            ],
+          ),
+        ],
       );
     }
 
     return Scaffold(
-      appBar: buildAppBar(),
-      body: isLoading
-          ? Center(
-              child: Column(mainAxisSize: MainAxisSize.min, children: const [
-              CircularProgressIndicator(),
-              Text('Connecting ...'),
-            ]))
-          : buildBody(),
+      appBar: CustomAppBar(
+        title: "Cấu hình thiết bị",
+        centerTitle: false,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: const Icon(CupertinoIcons.back),
+        ),
+      ),
+      body: buildBody(),
     );
   }
 }

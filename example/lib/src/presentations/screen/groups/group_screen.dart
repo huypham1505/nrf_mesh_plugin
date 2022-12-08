@@ -1,19 +1,22 @@
+import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
+import '../../../presentations/screen/groups/group_detail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import '../../../config/palettes.dart';
 import '../../../config/text_style.dart';
-import 'group_detail.dart';
+import '../../widget/app_bar_main.dart';
 
 class GroupScreen extends StatefulWidget {
+  final NordicNrfMesh nrfMesh;
   final IMeshNetwork meshNetwork;
   final MeshManagerApi meshManagerApi;
   const GroupScreen({
     Key? key,
     required this.meshNetwork,
     required this.meshManagerApi,
+    required this.nrfMesh,
   }) : super(key: key);
 
   @override
@@ -64,31 +67,6 @@ class _GroupScreenState extends State<GroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    /// build appbar
-    void appBarActionOnTapped() {}
-
-    PreferredSizeWidget buildAppBar() {
-      return AppBar(
-        title: Text(
-          "Mesh",
-          style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () => appBarActionOnTapped(),
-            child: Text(
-              "Kết nối",
-              style: TextStyles.defaultStyle.bold.whiteTextColor,
-            ),
-          )
-        ],
-      );
-    }
-
     /// build boody
     Widget buildBody() {
       return Column(children: [
@@ -467,7 +445,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       },
                       child: Text(
                         'OK',
-                        style: TextStyles.customStyle,
+                        style: TextStyles.defaultStyle,
                       ),
                     ),
                   ],
@@ -486,7 +464,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 duration: const Duration(seconds: 2),
                 isDismissible: true,
               );
-              // widget.meshNetwork.groups.then((value) => setState(() => _groups = value.reversed.toList()));
+              widget.meshNetwork.groups.then((value) => setState(() => _groups = value.reversed.toList()));
             } on PlatformException catch (e) {
               debugPrint(e.toString());
               Get.snackbar(
@@ -528,11 +506,14 @@ class _GroupScreenState extends State<GroupScreen> {
       );
     }
 
-    return SafeArea(
-        child: Scaffold(
-      appBar: buildAppBar(),
+    return Scaffold(
+      appBar: CustomAppBarMain(
+        centerTitle: true,
+        nrfMesh: widget.nrfMesh,
+        title: "Nhóm",
+      ),
       body: buildBody(),
       floatingActionButton: buildFloatingActionBtn(),
-    ));
+    );
   }
 }

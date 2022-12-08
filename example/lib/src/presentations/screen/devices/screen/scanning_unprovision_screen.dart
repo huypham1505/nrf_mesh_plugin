@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
@@ -12,15 +13,17 @@ import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import '../../../widget/app_bar.dart';
 import '../../../widget/no_found_screen.dart';
+import '../control_module/device_controll_module.dart';
 import '../control_module/device_module.dart';
 import '../provider/ble_scanner.dart';
 import '../widget/unprovisioned_node.dart';
 
 class UnProvisionedDeviceListScreen extends StatelessWidget {
   final NordicNrfMesh nrfMesh;
+
   const UnProvisionedDeviceListScreen({Key? key, required this.nrfMesh}) : super(key: key);
 
   @override
@@ -75,7 +78,7 @@ class _DeviceListState extends State<_DeviceList> {
     super.dispose();
   }
 
-// hàm search
+// hàm search node
   void searchUnprovisioned(String input) {
     inputSearch = input;
     if (inputSearch.isEmpty) {
@@ -123,7 +126,9 @@ class _DeviceListState extends State<_DeviceList> {
       // Hệ điều hành android thì sẽ gửi địa chỉ mac của thiết bị, còn ios(apple) thì sẽ tự tạo uuid bằng thiết bị
       String deviceUUID;
       if (Platform.isAndroid) {
-        deviceUUID = Uuid.parse(getDeviceUuid(device.serviceData[meshProvisioningUuid]!.toList())).toString();
+        // deviceUUID = Uuid.parse(getDeviceUuid(device.serviceData[meshProvisioningUuid]!.toList())).toString();
+        deviceUUID =
+            Uuid.parse(_meshManagerApi.getDeviceUuid(device.serviceData[meshProvisioningUuid]!.toList())).toString();
         debugPrint("Thiết bị đang ghép nối trên nền tảng android có uuid là $deviceUUID");
       } else if (Platform.isIOS) {
         deviceUUID = device.id.toString();
@@ -134,35 +139,37 @@ class _DeviceListState extends State<_DeviceList> {
       final provisioningEvent = ProvisioningEvent();
       // thực hiện ghép thiết bị
       // start to provisioning
-      final provisionedMeshNodeF = widget.nrfMesh
-          .provisioning(_meshManagerApi, BleMeshManager(), device, deviceUUID, events: provisioningEvent)
-          // giới hạn là 1 phút nếu hơn thì sẽ tự thoát
+      final provisionedMeshNodeF =
+          widget.nrfMesh.provisioning(_meshManagerApi, BleMeshManager(), device, deviceUUID, events: provisioningEvent)
           // limit is 1 min
-          .timeout(const Duration(minutes: 1));
+          // .timeout(const Duration(minutes: 1))
+          ;
 
-      unawaited(provisionedMeshNodeF.then((node) {
-        Get.back();
+      unawaited(provisionedMeshNodeF.then((node) async {
+        Navigator.of(context).pop();
         Get.snackbar("Ghép nối thiết bị thành công", "Bắt đầu chuyển sang trang cấu hình ${device.name}",
             icon: const Icon(Icons.done, color: Colors.green),
             backgroundColor: Colors.white,
             snackPosition: SnackPosition.TOP,
             snackStyle: SnackStyle.FLOATING,
             isDismissible: true);
-        // Future.delayed(const Duration(milliseconds: 2000), () => Navigator.of(context).pop()).whenComplete(
-        //   () =>
-        // );
-        Get.back();
-        Future.delayed(const Duration(milliseconds: 3000), () => Navigator.of(context).pop()).whenComplete(
-          () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) => DeviceModule(
-                meshManagerApi: widget.nrfMesh.meshManagerApi,
-                device: device,
-              ),
-            ),
-          ),
-        );
+        await Future.delayed(
+          const Duration(milliseconds: 1000),
+          () => Navigator.of(context).pop(),
+        )
+            // .whenComplete(
+            //   () => Navigator.push(
+            //     context,
+            //     MaterialPageRoute<void>(
+            //       builder: (BuildContext context) => DeviceControllModule(
+            //         nodeData: node,
+            //         meshManagerApi: widget.nrfMesh.meshManagerApi,
+            //         device: device,
+            //       ),
+            //     ),
+            //   ),
+            // )
+            ;
       }).catchError((_) {
         Navigator.of(context).pop();
         Get.snackbar(
@@ -191,50 +198,13 @@ class _DeviceListState extends State<_DeviceList> {
     }
   }
 
-// Chuyển thành uuid cho android device
-  String getDeviceUuid(List<int> serviceData) {
-    var msb = 0;
-    var lsb = 0;
-    for (var i = 0; i < 8; i++) {
-      msb = (msb << 8) | (serviceData[i] & 0xff);
-    }
-    for (var i = 8; i < 16; i++) {
-      lsb = (lsb << 8) | (serviceData[i] & 0xff);
-    }
-    return '${_digits(msb >> 32, 8)}-${_digits(msb >> 16, 4)}-${_digits(msb, 4)}-${_digits(lsb >> 48, 4)}-${_digits(lsb, 12)}';
-  }
-
-  String _digits(int val, int digits) {
-    var hi = 1 << (digits * 4);
-    return (hi | (val & (hi - 1))).toRadixString(16).substring(1);
-  }
-
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leading: GestureDetector(
-              onTap: () {
-                widget.stopScan();
-                Get.back();
-              },
-              child: const Icon(Icons.arrow_back_rounded)),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Quét",
-                style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-              ),
-              Text(
-                "Tìm kiếm các thiết bị chưa ghép nối",
-                style: TextStyles.defaultStyle.whiteTextColor,
-              )
-            ],
-          ),
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-          ),
+        appBar: CustomAppBar(
+          title: "Quét",
+          centerTitle: false,
+          subTitle: "Dò tìm các thiết bị chưa ghép nối",
+          leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
         ),
         body: Column(
           children: [

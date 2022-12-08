@@ -1,11 +1,14 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import '../../../widget/app_bar.dart';
 
 class ExportScreen extends StatefulWidget {
   final MeshManagerApi meshManagerApi;
@@ -51,15 +54,13 @@ class _ExportScreenState extends State<ExportScreen> {
   Widget build(BuildContext context) {
     /// build appbar
     PreferredSizeWidget buildAppBar() {
-      return AppBar(
-        title: Text(
-          "Xuất dữ liệu",
-          style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
+      return CustomAppBar(
+        title: "Xuất dữ liệu",
         centerTitle: false,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: const Icon(CupertinoIcons.back),
+        ),
       );
     }
 
@@ -96,19 +97,38 @@ class _ExportScreenState extends State<ExportScreen> {
       _permissionReady = await _checkPermission();
       if (_permissionReady) {
         final stringJsonData = await widget.meshManagerApi.exportMeshNetwork();
-        // final filePath = await FilePicker.platform.pickFiles();
-        // File string = File('$filePath/$fileName');
-        //   // await string.create(recursive: true);
-        //   // Uint8List bytes = await string.readAsBytes();
-        //   // await string.writeAsBytes(bytes);
-        //   // string.writeAsString(stringJsonData!);
+        // final filePath = await FilePicker.platform.getDirectoryPath();
+        // final string = File('$filePath/$fileName');
+        // await string.writeAsString(stringJsonData!);
         debugPrint(stringJsonData.toString());
         // debugPrint(string.toString());
         debugPrint("Downloading");
         try {
           debugPrint("Download Completed.");
+          Get.snackbar(
+            "Dữ liệu",
+            'Xuất dữ liệu thành công',
+            icon: const Icon(Icons.restart_alt_rounded, color: Colors.greenAccent),
+            backgroundColor: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            duration: const Duration(seconds: 2),
+            isDismissible: true,
+          );
+          Get.back();
         } catch (e) {
           debugPrint("Download Failed.\n\n$e");
+          Get.snackbar(
+            "Dữ liệu",
+            'Xuất dữ liệu thất bại\n $e',
+            icon: const Icon(Icons.cancel_rounded, color: Colors.orangeAccent),
+            backgroundColor: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            duration: const Duration(seconds: 2),
+            isDismissible: true,
+          );
+          Get.back();
         }
       }
     }

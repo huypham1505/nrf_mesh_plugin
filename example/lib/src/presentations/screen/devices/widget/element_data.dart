@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 
+import 'model_node.dart';
+
 class ElementNodeData extends StatelessWidget {
   final ElementData elmentData;
   const ElementNodeData({Key? key, required this.elmentData}) : super(key: key);
@@ -15,6 +17,7 @@ class ElementNodeData extends StatelessWidget {
       children: [
         Text(elmentData.name),
         Text('Models: ${elmentData.models.length}'),
+        // ...elmentData.models.map((e) => ModelNode(e))
       ],
     );
   }

@@ -1,12 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
+import 'package:get/get.dart';
 
-import '../../../../../../config/palettes.dart';
 import '../../../../../../config/text_style.dart';
+import '../../../../../../data/model/mesh_network/mesh_data.dart';
+import '../../../../../widget/app_bar.dart';
 
 class NetkeyDetail extends StatefulWidget {
-  final Provisioner provisioner;
-  const NetkeyDetail({Key? key, required this.provisioner}) : super(key: key);
+  final NetKeys netKey;
+  const NetkeyDetail({Key? key, required this.netKey}) : super(key: key);
 
   @override
   State<NetkeyDetail> createState() => _NetkeyDetailState();
@@ -16,55 +18,37 @@ class _NetkeyDetailState extends State<NetkeyDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.provisioner.provisionerName,
-          style: TextStyles.defaultStyle.fontHeader.whiteTextColor,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: Palettes.gradientAppBar),
-        ),
+      appBar: CustomAppBar(
         centerTitle: false,
+        title: widget.netKey.name!,
+        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
+        // subTitle: widget.netKey.key!,
       ),
       body: SingleChildScrollView(
           child: Column(
         children: [
           ListTile(
-            title: Text("Provisioner", style: TextStyles.defaultStyle.bold.fontTitle.redTextColor),
+            title: Text("Edit ${widget.netKey.name!}", style: TextStyles.defaultStyle.bold.fontTitle.redTextColor),
           ),
           ListTile(
             leading: const Icon(Icons.label_important_rounded),
             title: Text("Tên", style: TextStyles.defaultStyle.bold),
-            subtitle: Text(widget.provisioner.provisionerName, style: TextStyles.defaultStyle.regular),
+            subtitle: Text(widget.netKey.name!, style: TextStyles.defaultStyle.regular),
+          ),
+          ListTile(
+            leading: const Icon(Icons.numbers_rounded),
+            title: Text("Key Index", style: TextStyles.defaultStyle.bold),
+            subtitle: Text(widget.netKey.index.toString(), style: TextStyles.defaultStyle.regular),
+          ),
+          ListTile(
+            leading: const Icon(Icons.security),
+            title: Text("Security", style: TextStyles.defaultStyle.bold),
+            subtitle: Text(widget.netKey.minSecurity.toString(), style: TextStyles.defaultStyle.regular),
           ),
           ListTile(
             leading: const Icon(Icons.access_time),
-            title: Text("Thời gian để sống", style: TextStyles.defaultStyle.bold),
-            subtitle: Text(widget.provisioner.globalTtl.toString(), style: TextStyles.defaultStyle.regular),
-          ),
-          ListTile(
-            leading: const Icon(Icons.view_agenda),
-            title: Text("Địa chỉ Unicast", style: TextStyles.defaultStyle.bold),
-            subtitle: Text('0x${widget.provisioner.provisionerAddress.toRadixString(16).padLeft(4, "0")}',
-                style: TextStyles.defaultStyle.regular),
-          ),
-          // ListTile(
-          //   leading: const Icon(Icons.app_registration),
-          //   title: Text("Provisioner uuid", style: TextStyles.defaultStyle.bold),
-          //   subtitle: Text(widget.provisioner.lastSelected.toString(), style: TextStyles.defaultStyle.regular),
-          // ),
-          ListTile(
-            title: Text("Unicast", style: TextStyles.defaultStyle.bold),
-            subtitle:
-                Text(widget.provisioner.allocatedUnicastRanges.toString(), style: TextStyles.defaultStyle.regular),
-          ),
-          ListTile(
-            title: Text("Địa chỉ nhóm", style: TextStyles.defaultStyle.bold),
-            subtitle: Text(widget.provisioner.allocatedGroupRanges.toString(), style: TextStyles.defaultStyle.regular),
-          ),
-          ListTile(
-            title: Text("Ngữ cảnh", style: TextStyles.defaultStyle.bold),
-            subtitle: Text(widget.provisioner.allocatedSceneRanges.toString(), style: TextStyles.defaultStyle.regular),
+            title: Text("Chỉnh sửa lần cuối", style: TextStyles.defaultStyle.bold),
+            subtitle: Text(widget.netKey.timestamp.toString(), style: TextStyles.defaultStyle.regular),
           ),
         ],
       )),

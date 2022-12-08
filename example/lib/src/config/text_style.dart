@@ -30,7 +30,7 @@ extension ExtendedTextStyle on TextStyle {
 
   TextStyle get fontHeader {
     return copyWith(
-      fontSize: 22,
+      fontSize: 21,
       height: 22 / 20,
     );
   }
@@ -70,9 +70,9 @@ extension ExtendedTextStyle on TextStyle {
     return copyWith(color: Palettes.p7);
   }
 
-  // TextStyle get subTitleTextColor {
-  //   return copyWith(color: ColorPalette.subTitleColor);
-  // }
+  TextStyle textSpacing(double num) {
+    return copyWith(letterSpacing: num);
+  }
 
   // convenience functions
   TextStyle setColor(Color color) {
@@ -90,8 +90,6 @@ class TextStyles {
   BuildContext? context;
 
   static TextStyle defaultStyle =
-      GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0.15, color: Palettes.textBlack);
-  static TextStyle customStyle =
       GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0.15, color: Palettes.textBlack);
 }
 
