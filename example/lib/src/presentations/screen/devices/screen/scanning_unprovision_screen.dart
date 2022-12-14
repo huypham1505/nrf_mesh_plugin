@@ -164,7 +164,7 @@ class _DeviceListState extends State<_DeviceList> {
                 : Expanded(
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 100),
+                      padding: const EdgeInsets.only(bottom: 100, top: 10, left: 8, right: 8),
                       // shrinkWrap: true,
                       itemCount: widget.scannerState.discoveredDevices.length,
                       itemBuilder: (context, index) {

@@ -56,25 +56,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
               : Expanded(
                   child: ListView.builder(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 100),
+                    padding: const EdgeInsets.only(bottom: 100, top: 10, left: 8, right: 8),
                     itemCount: _nodes.length,
                     itemBuilder: (context, index) {
-                      return GestureDetector(
-                        // chuyển sang trang cấu hình
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) => DeviceControllModule(
-                              meshManagerApi: widget.nrfMesh.meshManagerApi,
-                              nodeData: _nodes[index],
-                            ),
-                          ),
-                        ),
-                        child: ProvisionedNodeItems(
-                          meshNetwork: widget.meshNetwork,
-                          node: _nodes[index],
-                          testKey: 'node-${_nodes.indexOf(_nodes[index])}',
-                        ),
+                      return ProvisionedNodeItems(
+                        nrfMesh: widget.nrfMesh,
+                        meshNetwork: widget.meshNetwork,
+                        node: _nodes[index],
+                        testKey: 'node-${_nodes.indexOf(_nodes[index])}',
                       );
                     },
                   ),

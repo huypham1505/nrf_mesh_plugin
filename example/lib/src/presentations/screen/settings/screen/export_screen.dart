@@ -91,7 +91,6 @@ class _ExportScreenState extends State<ExportScreen> {
         debugPrint(path);
         debugPrint("Downloading");
         try {
-          setState(() {});
           debugPrint("Download Completed.");
           Get.snackbar(
             "Dữ liệu",
@@ -105,7 +104,6 @@ class _ExportScreenState extends State<ExportScreen> {
           );
           Get.back();
         } catch (e) {
-          setState(() {});
           debugPrint("Download Failed.\n\n$e");
           Get.snackbar(
             "Dữ liệu",

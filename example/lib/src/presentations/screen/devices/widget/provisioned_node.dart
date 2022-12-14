@@ -4,13 +4,20 @@ import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import '../../../../config/palettes.dart';
 import '../../../../config/text_style.dart';
+import '../control_module/device_controll_module.dart';
 
 class ProvisionedNodeItems extends StatefulWidget {
   final IMeshNetwork meshNetwork;
   final ProvisionedMeshNode node;
+  final NordicNrfMesh nrfMesh;
   final String testKey;
-  const ProvisionedNodeItems({Key? key, required this.node, required this.testKey, required this.meshNetwork})
-      : super(key: key);
+  const ProvisionedNodeItems({
+    Key? key,
+    required this.node,
+    required this.testKey,
+    required this.meshNetwork,
+    required this.nrfMesh,
+  }) : super(key: key);
 
   @override
   State<ProvisionedNodeItems> createState() => _ProvisionedNodeItemsState();
@@ -40,6 +47,16 @@ class _ProvisionedNodeItemsState extends State<ProvisionedNodeItems> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      // chuyển sang trang cấu hình
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => DeviceControllModule(
+            meshManagerApi: widget.nrfMesh.meshManagerApi,
+            nodeData: widget.node,
+          ),
+        ),
+      ),
       // xoá thủ công thiết bị
       onLongPress: () => Get.bottomSheet(
         SizedBox(
@@ -113,7 +130,6 @@ class _ProvisionedNodeItemsState extends State<ProvisionedNodeItems> {
       ),
       child: Card(
         key: Key(widget.testKey),
-        margin: const EdgeInsets.only(right: 10, left: 10, top: 5, bottom: 5),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
