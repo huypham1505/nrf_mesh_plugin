@@ -7,13 +7,11 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
   final String subTitle;
   final bool centerTitle;
-  final Widget leading;
   final List<Widget> listAction;
   const CustomAppBar({
     Key? key,
     required this.title,
     required this.centerTitle,
-    this.leading = const SizedBox(),
     this.listAction = const [],
     this.subTitle = "",
   }) : super(key: key);
@@ -29,7 +27,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: widget.leading,
+      automaticallyImplyLeading: true,
       title: widget.subTitle == ""
           ? Text(
               widget.title,

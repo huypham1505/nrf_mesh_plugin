@@ -14,11 +14,7 @@ class ElementNodeData extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(elmentData.name),
-        Text('Models: ${elmentData.models.length}'),
-        // ...elmentData.models.map((e) => ModelNode(e))
-      ],
+      children: [Text('Models: ${elmentData.models.length}'), ...elmentData.models.map((e) => ModelNode(e))],
     );
   }
 }

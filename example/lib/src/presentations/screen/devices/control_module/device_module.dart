@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
+
 import '../../../../config/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import '../../../../config/palettes.dart';
-import 'commands/generic/send_generic_level.dart';
-import 'commands/generic/send_generic_on_off.dart';
-import 'commands/send_config_model_publication_add.dart';
-import 'commands/send_config_model_subscription_add.dart';
+import 'commands/generic/send_generic_level_get.dart';
+import 'commands/generic/send_generic_on_off_set.dart';
+import 'commands/pub-sub/send_config_model_publication_add.dart';
+import 'commands/pub-sub/send_config_model_subscription_add.dart';
+
 import 'commands/send_deprovisioning.dart';
 
 import 'commands/lighting/send_light_hsl.dart';
@@ -32,8 +34,6 @@ class _DeviceModuleState extends State<DeviceModule> {
   late int intSeq = 0;
   bool isLoading = true;
   late List<ProvisionedMeshNode> nodes;
-
-  // late ElementData elementData;
 
   // auto set blind appkey
   Future<void> _init() async {
@@ -108,8 +108,12 @@ class _DeviceModuleState extends State<DeviceModule> {
               title: Text("Tên thiết bị", style: TextStyles.defaultStyle.bold),
               subtitle: Text(widget.device.name, style: TextStyles.defaultStyle.regular),
             ),
+            ListTile(
+              title: Text("Unicast", style: TextStyles.defaultStyle.bold),
+              subtitle: Text(widget.device.id, style: TextStyles.defaultStyle.regular),
+            ),
             SendGenericLevel(meshManagerApi: widget.meshManagerApi),
-            SendGenericOnOff(meshManagerApi: widget.meshManagerApi),
+            SendGenericOnOffSet(meshManagerApi: widget.meshManagerApi),
             SendConfigModelPublicationAdd(widget.meshManagerApi),
             SendConfigModelSubscriptionAdd(widget.meshManagerApi),
             SendLightHsl(meshManagerApi: widget.meshManagerApi, sequence: intSeq),

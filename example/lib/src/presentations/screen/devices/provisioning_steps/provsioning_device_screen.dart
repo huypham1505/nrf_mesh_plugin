@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import '../../../../config/text_style.dart';
@@ -68,10 +66,6 @@ class _ProvisioningDeviceScreenState extends State<ProvisioningDeviceScreen> {
 
     return Scaffold(
       appBar: CustomAppBar(
-        leading: GestureDetector(
-          onTap: () => Get.back(),
-          child: const Icon(CupertinoIcons.back),
-        ),
         title: "Cấu hình thiết bị",
         centerTitle: false,
         listAction: [

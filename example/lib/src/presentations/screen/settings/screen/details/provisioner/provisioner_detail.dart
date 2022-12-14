@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 
 import '../../../../../../config/text_style.dart';
@@ -21,7 +19,6 @@ class _ProvisionerDetailState extends State<ProvisionerDetail> {
       appBar: CustomAppBar(
         centerTitle: false,
         title: widget.provisioner.provisionerName,
-        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
       ),
       body: SingleChildScrollView(
           child: Column(

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
+import '../../../repo/permissions.dart';
 import '../devices/screen/device_screen.dart';
 import '../groups/group_screen.dart';
 import '../scenes/context_screen.dart';
@@ -16,15 +17,21 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  late IMeshNetwork? _meshNetwork;
+  late IMeshNetwork _meshNetwork;
   late MeshManagerApi _meshManagerApi;
   final nrfMesh = NordicNrfMesh();
   late final StreamSubscription<IMeshNetwork?> onNetworkUpdateSubscription;
   late final StreamSubscription<IMeshNetwork?> onNetworkImportSubscription;
   late final StreamSubscription<IMeshNetwork?> onNetworkLoadingSubscription;
+  void loadMeshData(MeshManagerApi meshManagerApi) async {
+    await meshManagerApi.loadMeshNetwork();
+    _meshNetwork = meshManagerApi.meshNetwork!;
+  }
+
   @override
   void initState() {
     super.initState();
+    Permissions().checkAndAskPermissions();
     _meshManagerApi = nrfMesh.meshManagerApi;
     loadMeshData(_meshManagerApi);
     onNetworkUpdateSubscription = _meshManagerApi.onNetworkUpdated.listen((event) {
@@ -52,26 +59,21 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
   }
 
-  void loadMeshData(MeshManagerApi meshManagerApi) async {
-    await meshManagerApi.loadMeshNetwork();
-    _meshNetwork = meshManagerApi.meshNetwork;
-  }
-
   int _selectedIndex = 0;
 
   List<Widget> _buildScreens() {
     return [
       SceneScreen(nrfMesh: nrfMesh),
       GroupScreen(
-        meshNetwork: _meshNetwork!,
+        meshNetwork: _meshNetwork,
         meshManagerApi: _meshManagerApi,
         nrfMesh: nrfMesh,
       ),
       DeviceScreen(
         nrfMesh: nrfMesh,
-        meshNetwork: _meshNetwork!,
+        meshNetwork: _meshNetwork,
       ),
-      SettingScreen(meshManagerApi: _meshManagerApi, meshNetwork: _meshNetwork!),
+      SettingScreen(meshManagerApi: _meshManagerApi, meshNetwork: _meshNetwork),
     ];
   }
 
@@ -86,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
         label: ("Nhóm"),
       ),
       const BottomNavigationBarItem(
-        icon: Icon(Icons.broadcast_on_home_rounded),
+        icon: Icon(Icons.now_widgets_sharp),
         label: ("Thiết bị"),
       ),
       const BottomNavigationBarItem(

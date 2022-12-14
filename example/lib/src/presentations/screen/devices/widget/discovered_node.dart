@@ -4,9 +4,9 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import '../../../../config/text_style.dart';
 
-class UnprovisionedNode extends StatelessWidget {
+class DiscoveredNode extends StatelessWidget {
   final DiscoveredDevice device;
-  const UnprovisionedNode({
+  const DiscoveredNode({
     Key? key,
     required this.device,
   }) : super(key: key);

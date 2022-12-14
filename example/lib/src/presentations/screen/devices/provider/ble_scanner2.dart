@@ -7,16 +7,16 @@ import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'reactive_state.dart';
 
 class BleScanner2 implements ReactiveState<BleScanner2State> {
+  final FlutterReactiveBle _ble;
+  final void Function(String message) _logMessage;
+  final StreamController<BleScanner2State> _stateStreamController = StreamController();
+  final _devices = <DiscoveredDevice>[];
+
   BleScanner2({
     required FlutterReactiveBle ble,
     required Function(String message) logMessage,
   })  : _ble = ble,
         _logMessage = logMessage;
-
-  final FlutterReactiveBle _ble;
-  final void Function(String message) _logMessage;
-  final StreamController<BleScanner2State> _stateStreamController = StreamController();
-  final _devices = <DiscoveredDevice>[];
 
   @override
   Stream<BleScanner2State> get state => _stateStreamController.stream;
@@ -31,8 +31,13 @@ class BleScanner2 implements ReactiveState<BleScanner2State> {
       if (showedDevice >= 0) {
         _devices[showedDevice] = device;
       } else {
-        debugPrint('Device name: ${device.id}');
-        _devices.add(device);
+        if (device.rssi < -60) {
+          _devices.remove(device);
+        } else {
+          debugPrint(device.toString());
+          // debugPrint('Device :${device.name} ${device.serviceData}');
+          _devices.add(device);
+        }
       }
       _pushState();
     }, onError: (Object e) => _logMessage('Dò tìm thiết bị lỗi 💢: $e'));

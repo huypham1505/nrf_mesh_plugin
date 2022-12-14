@@ -28,7 +28,7 @@ class NoFoundScreen extends StatelessWidget {
                   height: 10,
                 ),
                 Text(
-                  "Không có thiết bị nào được thêm",
+                  "Không có thiết bị nào được thêm?",
                   style: TextStyles.defaultStyle.bold.blueTextColor,
                 ),
                 const SizedBox(
@@ -63,14 +63,7 @@ class NoFoundScreen extends StatelessWidget {
                   height: 10,
                 ),
                 Text(
-                  "1. Đảm bảo nguồn được bật hoặc phải được kết nối với nguồn điện",
-                  style: TextStyles.defaultStyle.italic.light,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "2. Phải đảm bảo bạn đang đứng gần thiết bị có liên quan và không được quá xa",
+                  "1. Đảm bảo nguồn được bật hoặc phải được kết nối với nguồn điện \n 2. Phải đảm bảo bạn đang đứng gần thiết bị có liên quan và không được quá xa",
                   style: TextStyles.defaultStyle.italic.light,
                 ),
               ],

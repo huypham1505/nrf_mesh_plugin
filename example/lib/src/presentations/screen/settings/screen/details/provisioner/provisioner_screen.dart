@@ -1,10 +1,9 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import '../../../../../../config/text_style.dart';
-import 'package:get/get.dart';
 import '../../../../../widget/app_bar.dart';
+import '../../../../../widget/fab_widget.dart';
 import '../../../screen/details/provisioner/provisioner_detail.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../../../config/palettes.dart';
 
@@ -39,10 +38,9 @@ class _ProvisionerScreenState extends State<ProvisionerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         centerTitle: false,
         title: "Provisioner",
-        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
       ),
       body: ListView.builder(
         shrinkWrap: true,
@@ -70,7 +68,7 @@ class _ProvisionerScreenState extends State<ProvisionerScreen> {
                 ),
               ],
             ),
-            child: InkWell(
+            child: GestureDetector(
                 // chuyển sang trang cấu hình
                 onTap: () => Navigator.push(
                       context,
@@ -102,15 +100,13 @@ class _ProvisionerScreenState extends State<ProvisionerScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Thêm Provisioner mới'),
-        icon: const Icon(CupertinoIcons.add),
-        onPressed: () async {
-          final meshNetwork = widget.meshManagerApi.meshNetwork;
-          await meshNetwork!.addProvisioner(0x0888, 0x02F6, 0x0888, 5);
-          widget.meshNetwork.provisioners.then((value) => setState(() => provisioners = value));
-        },
-      ),
+      floatingActionButton: FabWidget(
+          voidCallBack: () async {
+            final meshNetwork = widget.meshManagerApi.meshNetwork;
+            await meshNetwork!.addProvisioner(0x0888, 0x02F6, 0x0888, 5);
+            widget.meshNetwork.provisioners.then((value) => setState(() => provisioners = value));
+          },
+          title: 'Thêm Provisioner mới'),
     );
   }
 }

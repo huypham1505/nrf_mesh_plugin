@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
-
 import '../../../../../../config/palettes.dart';
 import '../../../../../../config/text_style.dart';
 import '../../../../../../data/model/mesh_network/mesh_data.dart';
@@ -23,10 +21,9 @@ class _AppkeyScreenState extends State<AppkeyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         centerTitle: false,
         title: "AppKeys",
-        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
       ),
       body: ListView.builder(
         shrinkWrap: true,

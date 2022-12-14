@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../../../../../config/text_style.dart';
 import '../../../../../../data/model/mesh_network/mesh_data.dart';
@@ -21,7 +19,6 @@ class _NetkeyDetailState extends State<NetkeyDetail> {
       appBar: CustomAppBar(
         centerTitle: false,
         title: widget.netKey.name!,
-        leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
         // subTitle: widget.netKey.key!,
       ),
       body: SingleChildScrollView(

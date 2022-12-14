@@ -314,6 +314,8 @@ class _SettingScreenState extends State<SettingScreen> {
                 title: Text('Ngữ cảnh', style: TextStyles.defaultStyle.semibold),
                 value: Text('0', style: TextStyles.defaultStyle),
               ),
+
+              // set index IV
               SettingsTile.switchTile(
                 leading: const Icon(Icons.switch_access_shortcut_rounded),
                 onToggle: (value) {
@@ -324,6 +326,8 @@ class _SettingScreenState extends State<SettingScreen> {
                 initialValue: indexIV,
                 title: Text('Chế độ kiểm tra IV', style: TextStyles.defaultStyle.semibold),
               ),
+
+              // lastime reset
               SettingsTile.navigation(
                 leading: const Icon(Icons.change_circle_rounded),
                 title: Text('Chỉnh sửa lần cuối', style: TextStyles.defaultStyle.semibold),
@@ -333,11 +337,7 @@ class _SettingScreenState extends State<SettingScreen> {
           ),
           SettingsSection(
             tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                leading: const Icon(Icons.download_done_rounded),
-                title: Text('Thông tin phiên bản', style: TextStyles.defaultStyle.semibold),
-                value: Text('1.0.0', style: TextStyles.defaultStyle),
-              ),
+              // app version
               SettingsTile.navigation(
                 leading: const Icon(Icons.info),
                 title: Text('Phiên bản phần mềm', style: TextStyles.defaultStyle.semibold),
@@ -356,9 +356,6 @@ class _SettingScreenState extends State<SettingScreen> {
         onPressed: () {},
         icon: const Icon(Icons.light_mode_rounded),
         label: const Text('  Day '),
-        // backgroundColor: currentColor,
-        // foregroundColor: foregroundColor,
-        // elevation: 15,
       ),
     );
   }

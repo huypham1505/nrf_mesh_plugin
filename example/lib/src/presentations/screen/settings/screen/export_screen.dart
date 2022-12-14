@@ -1,14 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../../config/palettes.dart';
-import '../../../../config/text_style.dart';
 import '../../../widget/app_bar.dart';
+import '../../../widget/fab_widget.dart';
 
 class ExportScreen extends StatefulWidget {
   final MeshManagerApi meshManagerApi;
@@ -52,18 +52,6 @@ class _ExportScreenState extends State<ExportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    /// build appbar
-    PreferredSizeWidget buildAppBar() {
-      return CustomAppBar(
-        title: "Xuất dữ liệu",
-        centerTitle: false,
-        leading: GestureDetector(
-          onTap: () => Get.back(),
-          child: const Icon(CupertinoIcons.back),
-        ),
-      );
-    }
-
     /// build body
     Widget buildBody() {
       return Column(
@@ -90,20 +78,20 @@ class _ExportScreenState extends State<ExportScreen> {
       );
     }
 
-    /// build floating btn
+    /// build floating btn function
     /// Xuất file json
     void floatingActionBtnOnTapped() async {
-      // final stringJsonData = await widget.meshManagerApi.exportMeshNetwork();
       _permissionReady = await _checkPermission();
       if (_permissionReady) {
         final stringJsonData = await widget.meshManagerApi.exportMeshNetwork();
-        // final filePath = await FilePicker.platform.getDirectoryPath();
-        // final string = File('$filePath/$fileName');
-        // await string.writeAsString(stringJsonData!);
+        Uint8List data = Uint8List.fromList(stringJsonData!.codeUnits);
+        MimeType type = MimeType.JSON;
+        String path = await FileSaver.instance.saveAs("nRF_MeshNetwork", data, "json", type);
         debugPrint(stringJsonData.toString());
-        // debugPrint(string.toString());
+        debugPrint(path);
         debugPrint("Downloading");
         try {
+          setState(() {});
           debugPrint("Download Completed.");
           Get.snackbar(
             "Dữ liệu",
@@ -117,6 +105,7 @@ class _ExportScreenState extends State<ExportScreen> {
           );
           Get.back();
         } catch (e) {
+          setState(() {});
           debugPrint("Download Failed.\n\n$e");
           Get.snackbar(
             "Dữ liệu",
@@ -133,29 +122,17 @@ class _ExportScreenState extends State<ExportScreen> {
       }
     }
 
-    Widget buildFloatingActionBtn() {
-      return FloatingActionButton.extended(
-        backgroundColor: Palettes.p7,
-        label: Row(
-          children: [
-            Text(
-              'Xuất dữ liệu (file json)',
-              style: TextStyles.defaultStyle.whiteTextColor.bold,
-            ),
-            const SizedBox(width: 10),
-            const Icon(
-              Icons.output,
-            )
-          ],
-        ),
-        onPressed: () => floatingActionBtnOnTapped(),
-      );
-    }
-
     return Scaffold(
-      appBar: buildAppBar(),
+      appBar: const CustomAppBar(
+        title: "Xuất dữ liệu",
+        centerTitle: false,
+      ),
       body: buildBody(),
-      floatingActionButton: buildFloatingActionBtn(),
+      floatingActionButton: FabWidget(
+        voidCallBack: floatingActionBtnOnTapped,
+        title: '',
+        iconData: Icons.download_rounded,
+      ),
     );
   }
 }

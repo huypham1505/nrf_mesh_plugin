@@ -1,21 +1,23 @@
 import 'dart:async';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 import '../../../../presentations/widget/app_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:get/get.dart';
-import 'package:settings_ui/settings_ui.dart';
 import '../../../../config/text_style.dart';
+import '../widget/element_data.dart';
+import 'commands/generic/send_generic_level_get.dart';
+import 'commands/generic/send_generic_on_off_set.dart';
+import 'commands/lighting/send_light_hsl.dart';
+import 'commands/pub-sub/send_config_model_publication_add.dart';
+import 'commands/pub-sub/send_config_model_subscription_add.dart';
+import 'commands/send_deprovisioning.dart';
 
 class DeviceControllModule extends StatefulWidget {
-  final DiscoveredDevice device;
   final ProvisionedMeshNode nodeData;
   final MeshManagerApi meshManagerApi;
 
   const DeviceControllModule({
     Key? key,
-    required this.device,
     required this.meshManagerApi,
     required this.nodeData,
   }) : super(key: key);
@@ -31,40 +33,10 @@ class _DeviceControllModuleState extends State<DeviceControllModule> {
   bool isLoading = true;
   late List<ProvisionedMeshNode> nodes;
   List<ElementData> _elements = [];
-
-  // auto set blind appkey
-  Future<void> _init() async {
-    bleMeshManager.callbacks = DoozProvisionedBleMeshManagerCallbacks(widget.meshManagerApi, bleMeshManager);
-    await bleMeshManager.connect(widget.device);
-    // get nodes (ignore first node which is the default provisioner)
-    nodes = (await widget.meshManagerApi.meshNetwork!.nodes).skip(1).toList();
-    // will bind app keys (needed to be able to configure node)
-    for (final node in nodes) {
-      final elements = await node.elements;
-      for (final element in elements) {
-        // elementData = element;
-        debugPrint('Element data cua thiet bi: ${element.address.toString()}');
-        for (final model in element.models) {
-          if (model.boundAppKey.isEmpty) {
-            if (element == elements.first && model == element.models.first) {
-              continue;
-            }
-            final unicast = await node.unicastAddress;
-            debugPrint('need to bind app key');
-            await widget.meshManagerApi.sendConfigModelAppBind(
-              unicast,
-              element.address,
-              model.modelId,
-            );
-          }
-        }
-      }
-    }
-
-    setState(() {
-      isLoading = false;
-    });
-  }
+  int uniCast = 0;
+  int ttl = 0;
+  String deviceKey = "";
+  late int intSeq = 0;
 
   void _deinit() async {
     await bleMeshManager.disconnect();
@@ -77,6 +49,7 @@ class _DeviceControllModuleState extends State<DeviceControllModule> {
     _init();
     widget.nodeData.name.then((value) => setState(() => nodeName = value));
     widget.nodeData.elements.then((value) => setState(() => _elements = value));
+    widget.nodeData.unicastAddress.then((value) => setState(() => uniCast = value));
   }
 
   @override
@@ -86,61 +59,49 @@ class _DeviceControllModuleState extends State<DeviceControllModule> {
   }
 
   @override
+  void didUpdateWidget(DeviceControllModule oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _init();
+    widget.nodeData.name.then((value) => setState(() => nodeName = value));
+    widget.nodeData.elements.then((value) => setState(() => _elements = value));
+    widget.nodeData.unicastAddress.then((value) => setState(() => uniCast = value));
+  }
+
+  // auto set blind appkey
+  Future<void> _init() async {
+    intSeq = await widget.meshManagerApi.getSequenceNumber(widget.nodeData);
+    await widget.meshManagerApi.sendConfigCompositionDataGet(uniCast);
+  }
+
+  @override
   Widget build(BuildContext context) {
     /// build boody
     Widget buildBody() {
-      return SettingsList(
-        physics: const BouncingScrollPhysics(),
-        sections: [
-          SettingsSection(
-            tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                onPressed: (context) {},
-                leading: const Icon(Icons.label),
-                title: Text('Tên', style: TextStyles.defaultStyle.semibold),
-                value: Text(nodeName, style: TextStyles.defaultStyle),
-              ),
-            ],
-          ),
-          SettingsSection(
-            tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                leading: const Icon(Icons.list_alt_rounded),
-                title: Text('Elements', style: TextStyles.defaultStyle.semibold),
-                value: ListView.builder(
-                  itemBuilder: (context, index) =>
-                      Text(_elements[index].address.toString(), style: TextStyles.defaultStyle),
-                ),
-              ),
-            ],
-          ),
-          SettingsSection(
-            tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                leading: const Icon(Icons.key_sharp),
-                title: Text('Network Keys', style: TextStyles.defaultStyle.semibold),
-                value: Text('1', style: TextStyles.defaultStyle),
-              ),
-              SettingsTile.navigation(
-                leading: const Icon(Icons.key_rounded),
-                title: Text('Application Keys', style: TextStyles.defaultStyle.semibold),
-                value: Text('0', style: TextStyles.defaultStyle),
-              ),
-            ],
-          ),
-        ],
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(nodeName, style: TextStyles.defaultStyle),
+            Text(widget.nodeData.uuid, style: TextStyles.defaultStyle),
+            Text(_elements.length.toString(), style: TextStyles.defaultStyle),
+            Text(ttl.toString(), style: TextStyles.defaultStyle),
+            Text(uniCast.toRadixString(16).padLeft(4, '0').toString(), style: TextStyles.defaultStyle),
+            ..._elements.map(
+              (e) => ElementNodeData(elmentData: e),
+            ),
+            SendGenericLevel(meshManagerApi: widget.meshManagerApi),
+            SendGenericOnOffSet(meshManagerApi: widget.meshManagerApi),
+            SendConfigModelPublicationAdd(widget.meshManagerApi),
+            SendConfigModelSubscriptionAdd(widget.meshManagerApi),
+            SendLightHsl(meshManagerApi: widget.meshManagerApi, sequence: intSeq),
+            SendDeprovisioning(meshManagerApi: widget.meshManagerApi),
+          ],
+        ),
       );
     }
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: "Cấu hình thiết bị",
-        centerTitle: false,
-        leading: GestureDetector(
-          onTap: () => Get.back(),
-          child: const Icon(CupertinoIcons.back),
-        ),
-      ),
+      appBar: CustomAppBar(title: nodeName, centerTitle: false),
       body: buildBody(),
     );
   }

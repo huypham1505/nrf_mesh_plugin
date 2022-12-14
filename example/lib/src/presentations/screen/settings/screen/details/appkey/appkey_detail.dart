@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import '../../../../../../config/palettes.dart';
 import '../../../../../../config/text_style.dart';
 import '../../../../../../data/model/mesh_network/mesh_data.dart';
 import '../../../../../widget/app_bar.dart';
@@ -19,13 +15,7 @@ class _AppkeyDetailState extends State<AppkeyDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-          title: widget.appKeys.name!,
-          centerTitle: false,
-          leading: GestureDetector(
-            onTap: () => Get.back(),
-            child: const Icon(CupertinoIcons.back),
-          )),
+      appBar: CustomAppBar(title: widget.appKeys.name!, centerTitle: false),
       body: SingleChildScrollView(
           child: Column(
         children: [
@@ -40,7 +30,7 @@ class _AppkeyDetailState extends State<AppkeyDetail> {
           ListTile(
             leading: const Icon(Icons.numbers),
             title: Text("Key Index", style: TextStyles.defaultStyle.bold),
-            subtitle: Text(widget.appKeys.boundNetKey.toString(), style: TextStyles.defaultStyle.regular),
+            subtitle: Text(widget.appKeys.index.toString(), style: TextStyles.defaultStyle.regular),
           ),
           ListTile(
             leading: const Icon(Icons.key),

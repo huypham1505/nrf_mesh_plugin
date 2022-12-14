@@ -10,7 +10,6 @@ class CustomAppBarMain extends StatefulWidget implements PreferredSizeWidget {
   final bool centerTitle;
   final NordicNrfMesh nrfMesh;
   final bool isMainBar;
-  final Widget leading;
   final String subTitle;
   const CustomAppBarMain({
     Key? key,
@@ -18,7 +17,6 @@ class CustomAppBarMain extends StatefulWidget implements PreferredSizeWidget {
     required this.title,
     required this.centerTitle,
     this.isMainBar = true,
-    this.leading = const SizedBox(),
     this.subTitle = "",
   }) : super(key: key);
 
@@ -26,14 +24,13 @@ class CustomAppBarMain extends StatefulWidget implements PreferredSizeWidget {
   State<CustomAppBarMain> createState() => _CustomAppBarMainState();
 
   @override
-  Size get preferredSize => const Size(double.maxFinite, 60);
+  Size get preferredSize => const Size(double.maxFinite, 55);
 }
 
 class _CustomAppBarMainState extends State<CustomAppBarMain> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: widget.leading,
       title: widget.isMainBar == true
           ? Text(
               widget.title,

@@ -5,19 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
 
-class SendGenericOnOff extends StatefulWidget {
+class SendGenericOnOffSet extends StatefulWidget {
   final MeshManagerApi meshManagerApi;
 
-  const SendGenericOnOff({
+  const SendGenericOnOffSet({
     Key? key,
     required this.meshManagerApi,
   }) : super(key: key);
 
   @override
-  State<SendGenericOnOff> createState() => _SendGenericOnOffState();
+  State<SendGenericOnOffSet> createState() => _SendGenericOnOffSetState();
 }
 
-class _SendGenericOnOffState extends State<SendGenericOnOff> {
+class _SendGenericOnOffSetState extends State<SendGenericOnOffSet> {
   int? selectedElementAddress;
 
   bool onOff = false;
@@ -49,6 +49,7 @@ class _SendGenericOnOffState extends State<SendGenericOnOff> {
               ? () async {
                   debugPrint('send level $onOff to $selectedElementAddress');
                   final provisionerUuid = await widget.meshManagerApi.meshNetwork!.selectedProvisionerUuid();
+                  debugPrint('selected provisioner $provisionerUuid');
                   final nodes = await widget.meshManagerApi.meshNetwork!.nodes;
                   try {
                     final provisionedNode = nodes.firstWhere((element) => element.uuid == provisionerUuid);

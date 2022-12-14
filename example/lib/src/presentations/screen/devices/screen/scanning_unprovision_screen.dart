@@ -1,25 +1,20 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:nordic_nrf_mesh/nordic_nrf_mesh.dart';
-
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../config/text_style.dart';
+import '../../../../repo/permissions.dart';
 import '../../../widget/app_bar.dart';
 import '../../../widget/no_found_screen.dart';
 import '../control_module/device_controll_module.dart';
 import '../control_module/device_module.dart';
 import '../provider/ble_scanner.dart';
-import '../widget/unprovisioned_node.dart';
+import '../widget/discovered_node.dart';
 
 class UnProvisionedDeviceListScreen extends StatelessWidget {
   final NordicNrfMesh nrfMesh;
@@ -60,13 +55,11 @@ class _DeviceList extends StatefulWidget {
 
 class _DeviceListState extends State<_DeviceList> {
   late MeshManagerApi _meshManagerApi;
-  late List<DiscoveredDevice> listData = [];
-  late String inputSearch = "";
 
   @override
   void initState() {
     super.initState();
-    checkAndAskPermissions();
+    Permissions().checkAndAskPermissions();
     _meshManagerApi = widget.nrfMesh.meshManagerApi;
     widget.startScan([]);
   }
@@ -74,47 +67,7 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   void dispose() {
     widget.stopScan();
-    inputSearch;
     super.dispose();
-  }
-
-// hàm search node
-  void searchUnprovisioned(String input) {
-    inputSearch = input;
-    if (inputSearch.isEmpty) {
-      listData = widget.scannerState.discoveredDevices;
-    } else {
-      final data = widget.scannerState.discoveredDevices
-          .where((element) =>
-              // element.name.contains(input.toLowerCase()) ||
-              element.id.toLowerCase().contains(inputSearch.toLowerCase()) ||
-              element.name.toLowerCase().contains(inputSearch.toLowerCase()))
-          .toList();
-      setState(() {
-        listData = data;
-      });
-    }
-  }
-
-// check bluetooth và vị trí
-  Future<void> checkAndAskPermissions() async {
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      if (androidInfo.version.sdkInt <= 31) {
-        // location
-        await Permission.locationWhenInUse.request();
-        await Permission.locationAlways.request();
-        // bluetooth
-        await Permission.bluetooth.request();
-      } else {
-        // bluetooth for Android 12 and up
-        await Permission.bluetoothScan.request();
-        await Permission.bluetoothConnect.request();
-      }
-    } else {
-      // bluetooth for iOS 13 and up
-      await Permission.bluetooth.request();
-    }
   }
 
 // hàm thực thi provisionig
@@ -137,24 +90,23 @@ class _DeviceListState extends State<_DeviceList> {
         throw UnimplementedError('device uuid on platform : ${Platform.operatingSystem}');
       }
       final provisioningEvent = ProvisioningEvent();
-      // thực hiện ghép thiết bị
       // start to provisioning
       final provisionedMeshNodeF =
           widget.nrfMesh.provisioning(_meshManagerApi, BleMeshManager(), device, deviceUUID, events: provisioningEvent)
           // limit is 1 min
-          // .timeout(const Duration(minutes: 1))
+          // .timeout(const Duration(seconds: 50))
           ;
 
       unawaited(provisionedMeshNodeF.then((node) async {
         Navigator.of(context).pop();
-        Get.snackbar("Ghép nối thiết bị thành công", "Bắt đầu chuyển sang trang cấu hình ${device.name}",
+        Get.snackbar("Ghép nối ${device.name} thành công", "Bắt đầu chuyển sang trang cấu hình ${device.name}",
             icon: const Icon(Icons.done, color: Colors.green),
             backgroundColor: Colors.white,
             snackPosition: SnackPosition.TOP,
             snackStyle: SnackStyle.FLOATING,
             isDismissible: true);
         await Future.delayed(
-          const Duration(milliseconds: 1000),
+          const Duration(milliseconds: 2000),
           () => Navigator.of(context).pop(),
         )
             // .whenComplete(
@@ -200,64 +152,30 @@ class _DeviceListState extends State<_DeviceList> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: CustomAppBar(
+        appBar: const CustomAppBar(
           title: "Quét",
           centerTitle: false,
           subTitle: "Dò tìm các thiết bị chưa ghép nối",
-          leading: GestureDetector(onTap: () => Get.back(), child: const Icon(CupertinoIcons.back)),
         ),
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (value) => searchUnprovisioned(value),
-                style: TextStyles.defaultStyle.italic,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  labelText: "Tìm kiếm thiết bị ...",
-                ),
-              ),
-            ),
-            inputSearch == ""
-                ?
-                // check nếu list thiết bị rỗng thì...
-                //else thì hiện ra
-                widget.scannerState.discoveredDevices.isEmpty
-                    ? const NoFoundScreen(isScanScreen: true)
-                    : Expanded(
-                        child: ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.only(bottom: 100),
-                          // shrinkWrap: true,
-                          itemCount: widget.scannerState.discoveredDevices.length,
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                                onTap: () => provisionDevice(widget.scannerState.discoveredDevices.elementAt(index)),
-                                child: UnprovisionedNode(
-                                  device: widget.scannerState.discoveredDevices.elementAt(index),
-                                ));
-                          },
-                        ),
-                      )
+            widget.scannerState.discoveredDevices.isEmpty
+                ? const NoFoundScreen(isScanScreen: true)
                 : Expanded(
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 100),
                       // shrinkWrap: true,
-                      itemCount: listData.length,
+                      itemCount: widget.scannerState.discoveredDevices.length,
                       itemBuilder: (context, index) {
                         return InkWell(
-                            onTap: () => provisionDevice(listData.elementAt(index)),
-                            child: UnprovisionedNode(
-                              device: listData.elementAt(index),
+                            onTap: () => provisionDevice(widget.scannerState.discoveredDevices.elementAt(index)),
+                            child: DiscoveredNode(
+                              device: widget.scannerState.discoveredDevices.elementAt(index),
                             ));
                       },
                     ),
-                  ),
+                  )
           ],
         ),
       );
